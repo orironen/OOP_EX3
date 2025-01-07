@@ -33,7 +33,7 @@ class Library:
     """
     Represents a library database. Contains functions to manage books and users.
     """
-    def __init__(self, users):
+    def __init__(self, users: list[User]):
         # get books from csv
         with open('books.csv', 'r', newline='') as books:
             booklist = csv.reader(books, delimiter=',')
@@ -143,4 +143,16 @@ class Library:
         except OSError:
             self.__log__("registered fail")
 
-    
+    def logInUser(self, username: str, password: str) -> bool:
+        """
+        Returns True if the password matches the username.
+        """
+        for user in self.users:
+            if user.name == username:
+                current= user
+        if current.passwordMatch(password):
+            self.__log__('logged in successfully')
+            return True
+        else:
+            self.__log__('logged in fail')
+            return False
