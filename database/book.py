@@ -47,18 +47,7 @@ class Book:
         # protected- "_[שם משתנה]"
         pass
 
-    @classmethod
-    def update(cls, book: Self, details: list[str], newContent) -> Self:
+    def setLoaned(self, input: bool) -> bool:
         """
-        Update one or more fields in the inputted Book object.
+        Sets if the book has been loaned or not
         """
-        for detail in details:
-            if detail != "is_loaned":
-                detail= "_"+detail
-            else:
-                detail= "__"+detail
-        attrs= ["_title", "_author", "__is_loaned", "_copies", "_genre", "_year"]
-        for thing in attrs:
-            if thing in details:
-                setattr(book, thing, newContent)
-        return book

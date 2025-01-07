@@ -1,6 +1,8 @@
+from Users.user import User
 from database import library
+from database.book import Book
 
-class Iterator:
+class __Iterator:
     """
     Base class for the Iterator design pattern.
     """
@@ -25,16 +27,22 @@ class Iterator:
         except IndexError:
             raise IndexError('No more items to iterate on.')
         
-class UserIterator(Iterator):
+class UserIterator(__Iterator):
     """
     Iterator for library users.
     """
     def __init__(self):
         super().__init__(library._USERS)
 
-class BookIterator(Iterator):
+    def next(self) -> User:
+        return super().next()
+
+class BookIterator(__Iterator):
     """
     Iterator for library books.
     """
     def __init__(self):
         super().__init__(library._BOOKS)
+
+    def next(self) -> Book:
+        return super().next()

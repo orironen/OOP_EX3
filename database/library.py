@@ -167,24 +167,31 @@ class Library:
         Borrows a book from the library in the name of the
         mentioned user.
         """
+        # find user
         userstack= UserIterator()
         while userstack.hasNext():
             user= userstack.next()
             if user.name == username:
                 current= user
-
+        # find book
         bookstack= BookIterator()
         while bookstack.hasNext():
             book= bookstack.next()
             if book._title == bookname:
                 borrowed= book
+        # can borrow
         if borrowed._copies > 0:
             current.addBook(borrowed)
+            # reduce num of copies
+            borrowed._copies-=1
             self.__log__('book borrowed successfully')
             if borrowed._copies == 0:
-                self.updateBookDetails(
-                    _BOOKS.index(borrowed),
-                    Book.update(borrowed, ["is_loaned"], True
-                ))
+                borrowed.setLoaned(True)
+            else:
+                borrowed.setLoaned(False)
+            self.updateBookDetails(
+                _BOOKS.index(borrowed),
+                borrowed
+                )
         else:
             self.__log__('book borrowed fail')
