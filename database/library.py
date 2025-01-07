@@ -1,5 +1,9 @@
 from copy import deepcopy
 import csv
+import random
+import string
+import hashlib
+from Users.user import User
 from book import Book, Genre
 
 def csvAsMatrix(file: str) -> list:
@@ -7,8 +11,7 @@ def csvAsMatrix(file: str) -> list:
     Returns a matrix representing the rows of the csv file.
     """
     with open(file, 'r', newline='') as f:
-        reader = csv.reader(f, delimiter=',')
-        return list(reader)
+        return list(csv.reader(f, delimiter=','))
 
 def __yesNoBool(string: str) -> bool:
     """
@@ -45,7 +48,6 @@ class Library:
                     int(row[5])
                 ))
         self.users= deepcopy(users)
-        self.log= []
         with open('log.txt', 'w') as log:
             log.write('')
 
@@ -74,7 +76,7 @@ class Library:
                     book._year
                 ])
             self.__log__('book added successfully')
-        except:
+        except OSError:
             self.__log__('book added fail')
 
     def removeBook(self, book: Book):
@@ -86,16 +88,13 @@ class Library:
             # read csv
             bookfile= csvAsMatrix('books.csv')
             # remove relevant row
-            for row in bookfile:
-                if row[0] == book._title:
-                    bookfile.remove(row)
-            # rejoin file
-            output= ','.join(row for row in bookfile)
+            rows= [row for row in bookfile if row[0] == book._title]
             # write to csv
             with open('books.csv', 'w', newline='') as books:
-                books.write(output)
+                bookwriter= csv.writer(books)
+                bookwriter.writerows(rows)
             self.__log__('book removed successfully')
-        except:
+        except OSError:
             self.__log__('book removed fail')
 
     def updateBookDetails(self, index: int, newBook: Book):
@@ -106,9 +105,7 @@ class Library:
         # read csv
         bookfile= csvAsMatrix('books.csv')
         # update relevant row
-        for i in len(bookfile):
-            if i == index:
-                bookfile[index]= [
+        newrow= [
                     newBook._title,
                     newBook._author,
                     __boolYesNo(newBook.wasLoaned()),
@@ -116,8 +113,34 @@ class Library:
                     str(newBook._genre),
                     newBook._year
                 ]
-        # rejoin file
-        output= ','.join(row for row in bookfile)
+        rows= [newrow if i == index else row for i, row in enumerate(bookfile)]
         # write to csv
         with open('books.csv', 'w', newline='') as books:
-            books.write(output)
+            bookwriter= csv.writer(books)
+            bookwriter.writerows(rows)
+
+    def registerUser(self, name: str, password: str) -> User:
+        """
+        Register a user to the library.
+        """
+        # generate random salt
+        salt= ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+        # create user
+        newuser= User(name, hashlib.sha256((password+salt).encode()), salt)
+        self.users.append(newuser)
+        try:
+            open('users.csv', 'r')
+        except OSError:
+            with open('users.csv', 'x') as userfile:
+                userwriter= csv.writer(userfile, delimiter=',')
+                userwriter.writerow(["name","password","salt","borrowed"])
+        try:
+            with open('user.csv', 'a') as userfile:
+                userwriter= csv.writer(userfile, delimiter=',')
+                userwriter.writerow([name, password, salt, []])
+            self.__log__("registered successfully")
+            return newuser
+        except OSError:
+            self.__log__("registered fail")
+
+    
