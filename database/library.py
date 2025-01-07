@@ -1,6 +1,6 @@
 from copy import deepcopy
 import csv
-import book
+from book import Book, Genre
 
 def yesNoBool(string: str) -> bool:
     """
@@ -27,17 +27,17 @@ class Library:
             booklist = csv.reader(books, delimiter=',')
             self.books = []
             for row in booklist:
-                self.books.append(book.Book(
+                self.books.append(Book(
                     row[0], 
                     row[1], 
                     yesNoBool(row[2]), 
                     int(row[3]), 
-                    row[4], 
+                    Genre.parseGenre(row[4]), 
                     int(row[5])
                 ))
         self.users= deepcopy(users)
 
-    def addBook(self, book: book.Book):
+    def addBook(self, book: Book):
         """
         Adds a book to the library.
         """
@@ -53,15 +53,15 @@ class Library:
                 book._year
             ])
 
-    def removeBook(self, book: book.Book):
+    def removeBook(self, book: Book):
         """
         Removes a book from the library.
         """
         self.books.remove(book)
+        # read csv
         with open('books.csv', 'r', newline='') as books:
             bookreader = csv.reader(books, delimiter=',')
             bookfile = list(bookreader)
-        
         # remove relevant row
         for row in bookfile:
             if row[0] == book._title:
@@ -72,11 +72,12 @@ class Library:
             books.write(output)
 
 
-    def updateBookDetails(self, index: int, newBook: book.Book):
+    def updateBookDetails(self, index: int, newBook: Book):
         """
         Updates the details of a book.
         """
         self.books[index]= newBook
+        # read csv
         with open('books.csv', 'r', newline='') as books:
             bookreader = csv.reader(books, delimiter=',')
             bookfile = list(bookreader)
@@ -91,7 +92,8 @@ class Library:
                     str(newBook._genre),
                     newBook._year
                 ]
-        # rejoin csv
+        # rejoin file
         output= ','.join(row for row in bookfile)
+        # write to csv
         with open('books.csv', 'w', newline='') as books:
             books.write(output)

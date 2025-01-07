@@ -23,19 +23,18 @@ class Genre(Enum):
     TRAGEDY = auto()
     FANTASY = auto()
 
+    def __str__(self):
+        return self.name.replace('_', ' ').title()
+
     @classmethod
     def parseGenre(cls, obj: str) -> Self:
         """
         A method that parses a string into a Genre object.
         """
         for genre in Genre:
-            enum_name = genre.name.replace('_', ' ').title()
-            if enum_name == obj:
+            if str(genre) == obj:
                 return genre
         raise ValueError(f"No genre matching '{obj}' found")
-    
-    def __str__(self):
-        return self.name.replace('_', ' ').title()
 
 class Book:
     """
