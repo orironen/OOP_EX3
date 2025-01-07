@@ -5,8 +5,12 @@ import string
 import hashlib
 from Users.user import User
 from book import Book, Genre
+from database.iterators import BookIterator, UserIterator
 
-def csvAsMatrix(file: str) -> list:
+_BOOKS: list[Book] = []
+_USERS: list[User] = []
+
+def __csvAsMatrix(file: str) -> list:
     """
     Returns a matrix representing the rows of the csv file.
     """
@@ -37,9 +41,8 @@ class Library:
         # get books from csv
         with open('books.csv', 'r', newline='') as books:
             booklist = csv.reader(books, delimiter=',')
-            self.books = []
             for row in booklist:
-                self.books.append(Book(
+                _BOOKS.append(Book(
                     row[0], 
                     row[1], 
                     __yesNoBool(row[2]), 
@@ -47,7 +50,7 @@ class Library:
                     Genre.parseGenre(row[4]), 
                     int(row[5])
                 ))
-        self.users= deepcopy(users)
+        _USERS.extend(users)
         with open('log.txt', 'w') as log:
             log.write('')
 
@@ -62,7 +65,7 @@ class Library:
         """
         Adds a book to the library.
         """
-        self.books.append(book)
+        _BOOKS.append(book)
         try:
             # add new book to csv
             with open('books.csv', 'a', newline='') as books:
@@ -83,10 +86,10 @@ class Library:
         """
         Removes a book from the library.
         """
-        self.books.remove(book)
+        _BOOKS.remove(book)
         try:
             # read csv
-            bookfile= csvAsMatrix('books.csv')
+            bookfile= __csvAsMatrix('books.csv')
             # remove relevant row
             rows= [row for row in bookfile if row[0] == book._title]
             # write to csv
@@ -99,11 +102,11 @@ class Library:
 
     def updateBookDetails(self, index: int, newBook: Book):
         """
-        Updates the details of the book in the specied index.
+        Updates the details of the book in the specified index.
         """
-        self.books[index]= newBook
+        _BOOKS[index]= newBook
         # read csv
-        bookfile= csvAsMatrix('books.csv')
+        bookfile= __csvAsMatrix('books.csv')
         # update relevant row
         newrow= [
                     newBook._title,
@@ -127,7 +130,7 @@ class Library:
         salt= ''.join(random.choices(string.ascii_letters + string.digits, k=5))
         # create user
         newuser= User(name, hashlib.sha256((password+salt).encode()), salt)
-        self.users.append(newuser)
+        _USERS.append(newuser)
         try:
             open('users.csv', 'r')
         except OSError:
@@ -147,7 +150,9 @@ class Library:
         """
         Returns True if the password matches the username.
         """
-        for user in self.users:
+        userIter= UserIterator()
+        while userIter.hasNext():
+            user= userIter.next()
             if user.name == username:
                 current= user
         if current.passwordMatch(password):
@@ -156,3 +161,30 @@ class Library:
         else:
             self.__log__('logged in fail')
             return False
+        
+    def borrowBook(self, username: str, bookname: str):
+        """
+        Borrows a book from the library in the name of the
+        mentioned user.
+        """
+        userstack= UserIterator()
+        while userstack.hasNext():
+            user= userstack.next()
+            if user.name == username:
+                current= user
+
+        bookstack= BookIterator()
+        while bookstack.hasNext():
+            book= bookstack.next()
+            if book._title == bookname:
+                borrowed= book
+        if borrowed._copies > 0:
+            current.addBook(borrowed)
+            self.__log__('book borrowed successfully')
+            if borrowed._copies == 0:
+                self.updateBookDetails(
+                    _BOOKS.index(borrowed),
+                    Book.update(borrowed, ["is_loaned"], True
+                ))
+        else:
+            self.__log__('book borrowed fail')

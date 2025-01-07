@@ -1,5 +1,7 @@
 import hashlib
 
+from database.book import Book
+
 class User:
     """
     Represents a User. Includes its username, password, and the
@@ -13,3 +15,8 @@ class User:
         Check if the given phrase matches the login password.
         """
         return hashlib.sha256((entered+self.__salt).encode()) == self.__password
+    
+    def addBook(self, book: Book):
+        """
+        Add a book to your borrowed booklist.
+        """
