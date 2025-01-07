@@ -33,6 +33,9 @@ class Genre(Enum):
             if enum_name == obj:
                 return genre
         raise ValueError(f"No genre matching '{obj}' found")
+    
+    def __str__(self):
+        return self.name.replace('_', ' ').title()
 
 class Book:
     """
