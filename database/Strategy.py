@@ -25,7 +25,7 @@ class SearchByCategory(__SearchStrategy):
     def search(self, query: str, books: list[Book]) -> list[Book]:
         return super().search(query, 'genre')
 
-class SearchByCategory(__SearchStrategy):
+class SearchByYear(__SearchStrategy):
     def search(self, query: str, books: list[Book]) -> list[Book]:
         return super().search(query, 'year')
 
