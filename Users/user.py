@@ -8,7 +8,9 @@ class User:
     books they borrowed.
     """
     def __init__(self, name: str, password: str, salt: str):
-        pass
+        self.name = name
+        self.__salt = salt
+        self.__password = password
 
     def passwordMatch(self, entered: str) -> bool:
         """
@@ -16,7 +18,4 @@ class User:
         """
         return hashlib.sha256((entered+self.__salt).encode()) == self.__password
     
-    def addBook(self, book: Book):
-        """
-        Add a book to your borrowed booklist.
-        """
+    

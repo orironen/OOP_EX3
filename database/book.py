@@ -42,17 +42,26 @@ class Book:
     author, year, and other info.
     """
     def __init__(self, title: str, author: str, is_loaned: bool, copies: int, genre: Genre, year: int):
-        # לאורי:
-        # private- "__[שם משתנה]"
-        # protected- "_[שם משתנה]"
-        pass
+        self._title = title
+        self._author = author
+        self.__is_loaned = is_loaned
+        self._copies = copies
+        self._genre = genre
+        self._year = year
+
 
     def _setLoaned(self, input: bool) -> bool:
         """
         Sets if the book has been loaned or not
         """
+        self.__loaned = input
+
 
     def _wasLoaned(self) -> bool:
         """
         Returns if the book was loaned or not.
         """
+        if self.__loaned:
+            return True
+        else:
+            return False

@@ -6,7 +6,7 @@ from Users.user import User
 from book import Book, Genre
 from database.iterators import UserIterator
 
-_BOOKS: list[Book] = []
+BOOKS: list[Book] = []
 _USERS: list[User] = []
 
 def __csvAsMatrix(file: str) -> list:
@@ -52,7 +52,7 @@ class Library:
         with open('books.csv', 'r', newline='') as books:
             booklist = csv.reader(books, delimiter=',')
             for row in booklist:
-                _BOOKS.append(Book(
+                BOOKS.append(Book(
                     row[0], 
                     row[1], 
                     __yesNoBool(row[2]), 
@@ -99,7 +99,7 @@ class Library:
         """
         Adds a book to the library.
         """
-        _BOOKS.append(book)
+        BOOKS.append(book)
         try:
             # add new book to csv
             self.__addBookToCSV(book, 'books.csv')
@@ -124,7 +124,7 @@ class Library:
         """
         Removes a book from the library.
         """
-        _BOOKS.remove(book)
+        BOOKS.remove(book)
         try:
             self.__removeBookFromCSV(book, 'books.csv')
             self.__log__('book removed successfully')
@@ -136,7 +136,7 @@ class Library:
         Updates the details of the book in the specified index in the
         specified CSV file.
         """
-        _BOOKS[index]= newBook
+        BOOKS[index]= newBook
         # read csv
         bookfile= __csvAsMatrix(csvfile)
         # update relevant row
