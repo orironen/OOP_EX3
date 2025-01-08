@@ -74,3 +74,34 @@ class BookFactory:
                 genre=Genre.parseGenre(data["genre"]),
                 year=data["year"],
             )
+
+class BookDecorator:
+    """
+    Base class for decorating a Book object.
+    """
+    def __init__(self, book: Book):
+        self._book = book
+
+    def __getattr__(self, name):
+        return getattr(self._book, name)
+
+class popularBook(BookDecorator):
+    def __init__(self, book: Book):
+        super().__init__(book)
+        self.waiting_list = []
+
+    def add_to_waiting_list(self, user: str):
+        if self.isLoaned():
+            self.waiting_list.append(user)
+
+    def get_waiting_list(self):
+        return self.waiting_list
+
+class AvailableBook(BookDecorator):
+
+    def is_available(self) -> bool:
+        return not self.isLoaned()
+
+class BorrowedBookDecorator(BookDecorator):
+    def is_borrowed(self) -> bool:
+        return self._book._is_loaned()
