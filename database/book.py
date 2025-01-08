@@ -44,7 +44,7 @@ class Book:
     def __init__(self, title: str, author: str, is_loaned: bool, copies: int, genre: Genre, year: int):
         self._title = title
         self._author = author
-        self.__is_loaned = is_loaned
+        self._loaned = is_loaned
         self._copies = copies
         self._genre = genre
         self._year = year
