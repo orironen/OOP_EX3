@@ -126,7 +126,6 @@ class popularBook(BookDecorator):
         super().__init__(book)
         self.waiting_list = []
 
-
     def add_to_waiting_list(self, user: str):
         if self.isLoaned():
             self.waiting_list.append(user)
@@ -139,6 +138,6 @@ class AvailableBook(BookDecorator):
     def is_available(self) -> bool:
         return not self.isLoaned()
 
-class BorrowedBookDecorator(BookDecorator):
+class BorrowedBook(BookDecorator):
     def is_borrowed(self) -> bool:
         return self._book._is_loaned()
