@@ -32,7 +32,7 @@ class UserIterator(__Iterator):
     Iterator for library users.
     """
     def __init__(self):
-        super().__init__(library._USERS)
+        super().__init__(library.USERS)
 
     def next(self) -> User:
         return super().next()

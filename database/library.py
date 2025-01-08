@@ -4,10 +4,11 @@ import string
 import hashlib
 from Users.user import User
 from book import Book, Genre
+import database.strategies as strategies
 from database.iterators import UserIterator
 
 BOOKS: list[Book] = []
-_USERS: list[User] = []
+USERS: list[User] = []
 
 def __csvAsMatrix(file: str) -> list:
     """
@@ -47,7 +48,7 @@ class Library:
     """
     Represents a library database. Contains functions to manage books and users.
     """
-    def __init__(self, users: list[User]):
+    def __init__(self):
         # get books from csv
         with open('books.csv', 'r', newline='') as books:
             booklist = csv.reader(books, delimiter=',')
@@ -60,7 +61,6 @@ class Library:
                     Genre.parseGenre(row[4]), 
                     int(row[5])
                 ))
-        _USERS.extend(users)
         if not __ifFileExists('available_books.csv'):
             with open('available_books.csv', 'x') as bookfile:
                 bookwriter= csv.writer(bookfile, delimiter=',')
@@ -162,7 +162,7 @@ class Library:
         salt= ''.join(random.choices(string.ascii_letters + string.digits, k=5))
         # create user
         newuser= User(name, hashlib.sha256((password+salt).encode()), salt)
-        _USERS.append(newuser)
+        USERS.append(newuser)
         if not __ifFileExists('users.csv'):
             with open('users.csv', 'x') as userfile:
                 userwriter= csv.writer(userfile, delimiter=',')
@@ -199,10 +199,8 @@ class Library:
         """
         # find book in available
         available= __csvAsMatrix('available_books.csv')
-        for i, row in enumerate(available):
-            if row[0] == bookname:
-                book_to_borrow= row
-                index= i
+        booksearch= strategies.Search(strategies.SearchByTitle())
+        book_to_borrow= booksearch.execute_search(bookname)
         # can borrow
         while book_to_borrow._copies > 0:
             # update book

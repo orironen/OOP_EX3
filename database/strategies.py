@@ -12,7 +12,6 @@ class __SearchStrategy(ABC):
                 responses.append(book)
         return responses
 
-
 class SearchByTitle(__SearchStrategy):
     def search(self, query: str, books: list[Book]) -> list[Book]:
         return super().search(query, 'title')
@@ -31,7 +30,7 @@ class SearchByYear(__SearchStrategy):
 
 
 class Search:
-    def __init__(self, strategy):
+    def __init__(self, strategy: __SearchStrategy):
         self._strategy = strategy
 
     def execute_search(self, query: str) -> list[Book]:
