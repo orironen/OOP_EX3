@@ -63,6 +63,15 @@ class Book:
         return self.__loaned
     
     @classmethod
+    def __yesNoBool(cls, string: str) -> bool:
+        """
+        Returns True if the string is 'Yes', False otherwise.
+        """
+        if string == 'Yes':
+            return True
+        return False
+
+    @classmethod
     def __boolYesNo(cls, boolean: bool) -> str:
         """
         Returns 'Yes' if the boolean is True, 'No' otherwise.
