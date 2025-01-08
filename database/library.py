@@ -1,23 +1,28 @@
+from copy import deepcopy
 import csv
 import random
 import string
 import hashlib
+import shutil
+from abc import ABC, abstractmethod
 from Users.user import User
-from book import Book, Genre
+from database.book import Book, Genre
 import database.strategies as strategies
 from database.iterators import UserIterator
 
 BOOKS: list[Book] = []
+AVAILABLE_BOOKS: list[Book] = []
+LOANED_BOOKS: list[Book] = []
 USERS: list[User] = []
 
-def __csvAsMatrix(file: str) -> list:
+def _csvAsMatrix(file: str) -> list:
     """
     Returns a matrix representing the rows of the csv file.
     """
     with open(file, 'r', newline='') as f:
         return list(csv.reader(f, delimiter=','))
 
-def __ifFileExists(file: str) -> bool:
+def _ifFileExists(file: str) -> bool:
     """
     Returns True if file path exists, False otherwise.
     """
@@ -28,48 +33,33 @@ def __ifFileExists(file: str) -> bool:
         return False
     return True
 
-def __yesNoBool(string: str) -> bool:
-    """
-    Returns True if the string is 'Yes', False otherwise.
-    """
-    if string == 'Yes':
-        return True
-    return False
+class _Obserable(ABC):
+    @abstractmethod
+    def notify(self, message: str):
+        """
+        Notify the inputted message to all observers.
+        """
+        pass
 
-def __boolYesNo(boolean: bool) -> str:
-    """
-    Returns 'Yes' if the boolean is True, 'No' otherwise.
-    """
-    if boolean:
-        return 'Yes'
-    return 'No'
-
-class Library:
+class Library(_Obserable):
     """
     Represents a library database. Contains functions to manage books and users.
     """
     def __init__(self):
         # get books from csv
-        with open('books.csv', 'r', newline='') as books:
-            booklist = csv.reader(books, delimiter=',')
-            for row in booklist:
-                BOOKS.append(Book(
-                    row[0], 
-                    row[1], 
-                    __yesNoBool(row[2]), 
-                    int(row[3]), 
-                    Genre.parseGenre(row[4]), 
-                    int(row[5])
-                ))
-        if not __ifFileExists('available_books.csv'):
-            with open('available_books.csv', 'x') as bookfile:
-                bookwriter= csv.writer(bookfile, delimiter=',')
-                bookwriter.writerows(list(booklist))
-        if not __ifFileExists('loaned_books.csv'):
+        with open('books.csv', 'r', newline='') as bookfile:
+            booklist = csv.reader(bookfile, delimiter=',')
+            for i, row in enumerate(booklist):
+                if i != 0:
+                    BOOKS.append(Book.parseBook(row))
+        if not _ifFileExists('available_books.csv'):
+            shutil.copy('books.csv', 'available_books.csv')
+        AVAILABLE_BOOKS.extend(BOOKS)
+        if not _ifFileExists('loaned_books.csv'):
             with open('loaned_books.csv', 'x') as bookfile:
                 bookwriter= csv.writer(bookfile, delimiter=',')
                 bookwriter.writerow(["title","author","is_loaned","copies","genre","year"])
-        if not __ifFileExists('log.txt'):
+        if not _ifFileExists('log.txt'):
             with open('log.txt', 'x') as log:
                 log.write('')
 
@@ -86,23 +76,18 @@ class Library:
         """
         with open(csvfile, 'a', newline='') as books:
             booklist = csv.writer(books, delimiter=',')
-            booklist.writerow([
-                book._title,
-                book._author,
-                __yesNoBool(book.wasLoaned()),
-                book._copies,
-                str(book._genre),
-                book._year
-            ])
+            booklist.writerow(book.toList())
 
     def addBook(self, book: Book):
         """
         Adds a book to the library.
         """
         BOOKS.append(book)
+        AVAILABLE_BOOKS.append(book)
         try:
             # add new book to csv
             self.__addBookToCSV(book, 'books.csv')
+            self.__addBookToCSV(book, 'available_books.csv')
             self.__log__('book added successfully')
         except OSError:
             self.__log__('book added fail')
@@ -112,7 +97,7 @@ class Library:
         Internal method to remove a book from the given csvfile path.
         """
         # read csv
-        bookfile= __csvAsMatrix(csvfile)
+        bookfile= _csvAsMatrix(csvfile)
         # remove relevant row
         rows= [row for row in bookfile if row[0] == book._title]
         # write to csv
@@ -125,30 +110,25 @@ class Library:
         Removes a book from the library.
         """
         BOOKS.remove(book)
+        AVAILABLE_BOOKS.remove(book)
         try:
             self.__removeBookFromCSV(book, 'books.csv')
+            self.__removeBookFromCSV(book, 'available_books.csv')
             self.__log__('book removed successfully')
         except OSError:
             self.__log__('book removed fail')
 
-    def updateBookDetails(self, index: int, newBook: Book, csvfile: str):
+    def updateBookDetails(self, oldBook: Book, newBook: Book, csvfile: str):
         """
         Updates the details of the book in the specified index in the
         specified CSV file.
         """
-        BOOKS[index]= newBook
+        BOOKS[BOOKS.index(oldBook)]= newBook
+        AVAILABLE_BOOKS[AVAILABLE_BOOKS.index(oldBook)]= newBook
         # read csv
-        bookfile= __csvAsMatrix(csvfile)
-        # update relevant row
-        newrow= [
-                    newBook._title,
-                    newBook._author,
-                    __boolYesNo(newBook._wasLoaned()),
-                    newBook._copies,
-                    str(newBook._genre),
-                    newBook._year
-                ]
-        rows= [newrow if i == index else row for i, row in enumerate(bookfile)]
+        bookfile= _csvAsMatrix(csvfile)
+        # update relevant row 
+        rows= [newBook.toList() if oldBook._title == row[0] else row for row in bookfile]
         # write to csv
         with open(csvfile, 'w', newline='') as books:
             bookwriter= csv.writer(books)
@@ -163,7 +143,7 @@ class Library:
         # create user
         newuser= User(name, hashlib.sha256((password+salt).encode()), salt)
         USERS.append(newuser)
-        if not __ifFileExists('users.csv'):
+        if not _ifFileExists('users.csv'):
             with open('users.csv', 'x') as userfile:
                 userwriter= csv.writer(userfile, delimiter=',')
                 userwriter.writerow(["name","password","salt"])
@@ -197,31 +177,29 @@ class Library:
         Borrows a book from the library in the name of the
         mentioned user.
         """
-        # find book in available
-        available= __csvAsMatrix('available_books.csv')
-        booksearch= strategies.Search(strategies.SearchByTitle())
-        book_to_borrow= booksearch.execute_search(bookname)
-        # can borrow
-        while book_to_borrow._copies > 0:
+        try:
+            # find book in available
+            booksearch= strategies.Search(strategies.SearchByTitle())
+            book_to_borrow= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
+            backup= deepcopy(book_to_borrow)
             # update book
             book_to_borrow._copies-=1
-            book_to_borrow[2]= 'Yes'
+            book_to_borrow._setLoaned(True)
+            # update available books
+            self.updateBookDetails(backup, book_to_borrow, 'available_books.csv')
+            # find book in loaned
             try:
-                # update available books
-                self.updateBookDetails(index, book_to_borrow, 'available_books.csv')
-                # find book in loaned
-                loaned= __csvAsMatrix('loaned_books.csv')
-                for i, row in enumerate(loaned):
-                    if row[0] == bookname:
-                        loaned_book= row
-                        index= i
+                loaned_book= deepcopy(booksearch.execute_search(bookname, LOANED_BOOKS)[0])
                 # update loaned books
-                if loaned_book:
-                    loaned_book[3]-=1
-                    self.updateBookDetails(index, loaned_book, 'loaned_books.csv')
-                else:
-                    self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
-                return
-            except OSError:
-                break
-        self.__log__('book borrowed fail')
+                backup= deepcopy(loaned_book)
+                loaned_book._copies+=1
+                self.updateBookDetails(backup, loaned_book, 'loaned_books.csv')
+            except IndexError:
+                book_to_borrow._copies= 1
+                self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
+        except OSError:
+            self.__log__('book borrowed fail')
+
+    def notify(self, message: str):
+        for observer in USERS:
+            observer.update(message)

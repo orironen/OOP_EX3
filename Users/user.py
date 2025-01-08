@@ -11,6 +11,7 @@ class User:
         self.name = name
         self.__salt = salt
         self.__password = password
+        self.__messages: list[str]= []
 
     def passwordMatch(self, entered: str) -> bool:
         """
@@ -18,4 +19,8 @@ class User:
         """
         return hashlib.sha256((entered+self.__salt).encode()) == self.__password
     
-    
+    def update(self, message: str):
+        self.__messages.append(message)
+
+    def getNotifications(self):
+        return self.__messages

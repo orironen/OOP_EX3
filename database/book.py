@@ -44,24 +44,48 @@ class Book:
     def __init__(self, title: str, author: str, is_loaned: bool, copies: int, genre: Genre, year: int):
         self._title = title
         self._author = author
-        self.__is_loaned = is_loaned
+        self.__loaned = is_loaned
         self._copies = copies
         self._genre = genre
         self._year = year
-
-
+    
     def _setLoaned(self, input: bool) -> bool:
         """
         Sets if the book has been loaned or not
         """
         self.__loaned = input
-
-
-    def _wasLoaned(self) -> bool:
+    
+    @classmethod
+    def __yesNoBool(cls, string: str) -> bool:
         """
-        Returns if the book was loaned or not.
+        Returns True if the string is 'Yes', False otherwise.
         """
-        if self.__loaned:
+        if string == 'Yes':
             return True
-        else:
-            return False
+        return False
+
+    @classmethod
+    def __boolYesNo(cls, boolean: bool) -> str:
+        """
+        Returns 'Yes' if the boolean is True, 'No' otherwise.
+        """
+        if boolean:
+            return 'Yes'
+        return 'No'
+
+    def toList(self) -> list[str]:
+        """
+        Returns a list object of all the book's fields.
+        """
+        return [
+            self._title,
+            self._author,
+            Book.__boolYesNo(self.__loaned),
+            self._copies,
+            str(self._genre),
+            self._year
+        ]
+
+    @classmethod
+    def parseBook(cls, l: list) -> Self:
+        return Book(l[0], l[1], Book.__yesNoBool(l[2]), int(l[3]), Genre.parseGenre(l[4]), int(l[5]))
