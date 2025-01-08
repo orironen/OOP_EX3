@@ -6,7 +6,7 @@ import hashlib
 import shutil
 from abc import ABC, abstractmethod
 from Users.user import User
-from database.book import Book, Genre
+from database.book import Book
 import database.strategies as strategies
 from database.iterators import UserIterator
 
@@ -52,6 +52,7 @@ class Library(_Obserable):
             for i, row in enumerate(booklist):
                 if i != 0:
                     BOOKS.append(Book.parseBook(row))
+        # copy into available books
         if not _ifFileExists('available_books.csv'):
             shutil.copy('books.csv', 'available_books.csv')
         AVAILABLE_BOOKS.extend(BOOKS)
@@ -197,6 +198,34 @@ class Library(_Obserable):
             except IndexError:
                 book_to_borrow._copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
+        except OSError:
+            self.__log__('book borrowed fail')
+
+    def returnBook(self, bookname: str):
+        """
+        Borrows a book from the library in the name of the
+        mentioned user.
+        """
+        try:
+            # find book in available
+            booksearch= strategies.Search(strategies.SearchByTitle())
+            book_to_return= deepcopy(booksearch.execute_search(bookname, LOANED_BOOKS)[0])
+            backup= deepcopy(book_to_return)
+            # update book
+            book_to_return._copies-=1
+            book_to_return._setLoaned(False)
+            # update available books
+            self.updateBookDetails(backup, book_to_return, 'loaned_books.csv')
+            # find book in loaned
+            try:
+                returned_book= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
+                # update loaned books
+                backup= deepcopy(returned_book)
+                returned_book._copies+=1
+                self.updateBookDetails(backup, returned_book, 'available_books.csv')
+            except IndexError:
+                book_to_return._copies= 1
+                self.__addBookToCSV(book_to_return, 'available_books.csv')
         except OSError:
             self.__log__('book borrowed fail')
 
