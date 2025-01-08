@@ -1,4 +1,3 @@
-from copy import deepcopy
 import csv
 import random
 import string
@@ -134,7 +133,8 @@ class Library:
 
     def updateBookDetails(self, index: int, newBook: Book, csvfile: str):
         """
-        Updates the details of the book in the specified index.
+        Updates the details of the book in the specified index in the
+        specified CSV file.
         """
         BOOKS[index]= newBook
         # read csv
@@ -207,10 +207,7 @@ class Library:
         while book_to_borrow._copies > 0:
             # update book
             book_to_borrow._copies-=1
-            if book_to_borrow._copies == 0:
-                book_to_borrow[2]= 'Yes'
-            else:
-                book_to_borrow[2]= 'No'
+            book_to_borrow[2]= 'Yes'
             try:
                 # update available books
                 self.updateBookDetails(index, book_to_borrow, 'available_books.csv')
