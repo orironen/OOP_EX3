@@ -5,7 +5,7 @@ from database.book import Book
 class User:
     """
     Represents a User. Includes its username, password, and the
-    books they borrowed.
+    books they borrowed. Also implements the Observer design pattern.
     """
     def __init__(self, name: str, password: str, salt: str):
         self.name = name

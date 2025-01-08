@@ -53,14 +53,13 @@ class Book:
         """
         Sets if the book has been loaned or not.
         """
-        self.__loaned = input
-
+        self._loaned = input
 
     def _wasLoaned(self) -> bool:
         """
         Returns if the book was loaned or not.
         """
-        return self.__loaned
+        return self._loaned
     
     @classmethod
     def __yesNoBool(cls, string: str) -> bool:
@@ -87,7 +86,7 @@ class Book:
         return [
             self._title,
             self._author,
-            Book.__boolYesNo(self.__loaned),
+            Book.__boolYesNo(self._loaned),
             self._copies,
             str(self._genre),
             self._year

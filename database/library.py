@@ -55,15 +55,15 @@ class Library(_Obserable):
         # copy into available books
         if not _ifFileExists('available_books.csv'):
             AVAILABLE_BOOKS.extend(book for book in BOOKS if not book._wasLoaned())
-            with open('available_books.csv', 'x') as bookfile:
+            with open('available_books.csv', 'x', newline='') as bookfile:
                 writer= csv.writer(bookfile, delimiter=',')
                 writer.writerow(["title","author","is_loaned","copies","genre","year"])
                 writer.writerows(book.toList() for book in AVAILABLE_BOOKS)
         if not _ifFileExists('loaned_books.csv'):
             LOANED_BOOKS.extend(book for book in BOOKS if book._wasLoaned())
-            with open('loaned_books.csv', 'x') as bookfile:
-                bookwriter= csv.writer(bookfile, delimiter=',')
-                bookwriter.writerow(["title","author","is_loaned","copies","genre","year"])
+            with open('loaned_books.csv', 'x', newline='') as bookfile:
+                writer= csv.writer(bookfile, delimiter=',')
+                writer.writerow(["title","author","is_loaned","copies","genre","year"])
                 writer.writerows(book.toList() for book in LOANED_BOOKS)
         if not _ifFileExists('log.txt'):
             with open('log.txt', 'x') as log:
