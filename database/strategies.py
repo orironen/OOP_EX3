@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
-import database.library as library
 from database.book import Book
+from database.iterators import BookIterator
 
 class _SearchStrategy(ABC):
     @abstractmethod
     def search(self, query: str, field: str, books: list[Book]) -> list[Book]:
         responses= []
-        for book in books:
+        bookstack= BookIterator(books)
+        while bookstack.hasNext():
+            book= bookstack.next()
             attribute= getattr(book, field)
             if query.lower() in attribute.lower():
                 responses.append(book)

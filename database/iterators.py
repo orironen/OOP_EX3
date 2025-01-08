@@ -41,8 +41,8 @@ class BookIterator(__Iterator):
     """
     Iterator for library books.
     """
-    def __init__(self):
-        super().__init__(library.BOOKS)
+    def __init__(self, books: list[Book]):
+        super().__init__(books)
 
     def next(self) -> Book:
         return super().next()
