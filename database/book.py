@@ -127,6 +127,7 @@ class popularBook(BookDecorator):
         super().__init__(book)
         self.waiting_list = []
 
+
     def add_to_waiting_list(self, user: str):
         if self.isLoaned():
             self.waiting_list.append(user)
