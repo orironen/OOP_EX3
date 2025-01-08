@@ -47,7 +47,12 @@ class Book:
         # protected- "_[שם משתנה]"
         pass
 
-    def setLoaned(self, input: bool) -> bool:
+    def _setLoaned(self, input: bool) -> bool:
         """
         Sets if the book has been loaned or not
+        """
+
+    def _wasLoaned(self) -> bool:
+        """
+        Returns if the book was loaned or not.
         """
