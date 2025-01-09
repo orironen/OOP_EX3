@@ -64,6 +64,18 @@ class Library(_Obserable):
                 writer= csv.writer(bookfile, delimiter=',')
                 writer.writerow(["title","author","is_loaned","copies","genre","year"])
                 writer.writerows(book.toList() for book in LOANED_BOOKS)
+        # get user data
+        if not _ifFileExists('users.csv'):
+            with open('users.csv', 'x', newline='') as userfile:
+                userwriter= csv.writer(userfile, delimiter=',')
+                userwriter.writerow(["name","password","salt"])
+        else:
+            with open('users.csv', 'r') as userfile:
+                userreader= csv.reader(userfile, delimiter=',')
+                for i, row in enumerate(userreader):
+                    if i != 0:
+                        USERS.append(User.parseUser(row))
+        # create log.txt
         if not _ifFileExists('log.txt'):
             with open('log.txt', 'x') as log:
                 log.write('')
@@ -158,10 +170,6 @@ class Library(_Obserable):
         # create user
         newuser= User(name, pword, salt)
         USERS.append(newuser)
-        if not _ifFileExists('users.csv'):
-            with open('users.csv', 'x', newline='') as userfile:
-                userwriter= csv.writer(userfile, delimiter=',')
-                userwriter.writerow(["name","password","salt"])
         try:
             with open('users.csv', 'a', newline='') as userfile:
                 userwriter= csv.writer(userfile, delimiter=',')
