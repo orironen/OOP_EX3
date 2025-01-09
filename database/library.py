@@ -101,6 +101,7 @@ class Library(_Obserable):
             self.__addBookToCSV(book, 'books.csv')
             self.__addBookToCSV(book, 'available_books.csv')
             self.__log__('book added successfully')
+            self.notify(f'The book {book.title} has been added.')
         except OSError:
             self.__log__('book added fail')
 
@@ -127,6 +128,7 @@ class Library(_Obserable):
             self.__removeBookFromCSV(book, 'books.csv')
             self.__removeBookFromCSV(book, 'available_books.csv')
             self.__log__('book removed successfully')
+            self.notify(f'The book {book.title} has been removed.')
         except OSError:
             self.__log__('book removed fail')
 
@@ -164,7 +166,7 @@ class Library(_Obserable):
                 userwriter= csv.writer(userfile, delimiter=',')
                 userwriter.writerow([name, password, salt])
             self.__log__("registered successfully")
-            self.notify(message=f"Welcome to the library, {newuser.name}! Your account has been created successfully.")
+            self.notify(message=f"{newuser.name}'s account has been created successfully.")
             return newuser
         except OSError:
             self.__log__("registered fail")
@@ -222,9 +224,7 @@ class Library(_Obserable):
                 book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
             book_to_borrow.removeFromWaitingList(loaner)
-            self.notify(message=f"The book '{book_to_borrow.title}' has been successfully borrowed")
-
-                
+            self.notify(message=f"The book '{book_to_borrow.title}' was borrowed by {loaner}.")
         except OSError:
             self.__log__('book borrowed fail')
 
@@ -261,6 +261,6 @@ class Library(_Obserable):
             if loaner in book_to_return.getWaitingList():
                 book_to_return.removeFromWaitingList(loaner)
             self.__log__('book returned successfully')
+            self.notify(message=f"The book '{book_to_return.title}' was returned by {loaner}.")
         except OSError:
             self.__log__('book borrowed fail')
-            self.notify(message=f"Failed to return the book '{bookname}'. Please try again.")
