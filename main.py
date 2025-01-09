@@ -1,6 +1,6 @@
 import database.library as library
-import menu.main_menu as main_menu
+import menu.mainGUI as main
 
 lib= library.Library()
 
-main_menu.start_gui(lib)
+main.start_gui(lib)

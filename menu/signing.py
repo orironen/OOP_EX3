@@ -1,0 +1,58 @@
+from functools import partial
+import tkinter as tk
+import menu.baseGUI as gui
+import menu.mainGUI as main
+
+class SignInPage(gui.Page):
+    def __init__(self):
+        nameentry= tk.Entry(main.ROOT)
+        passentry= tk.Entry(main.ROOT)
+        super().__init__([
+            gui.Element(tk.Label(main.ROOT, text="Welcome to the library!",
+                                 height=3,
+                                 font=("TkDefaultFont", 10)
+                        ), 
+                            {"row": 0, "column": 0, "padx": 2}),
+            gui.Element(tk.Label(main.ROOT, text="Username"),
+                            {"row": 1, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text="Password"),
+                            {"row": 2, "column": 0,}),
+            gui.Element(nameentry,
+                            {"row": 1, "column": 1, "padx": 1}),
+            gui.Element(passentry,
+                            {"row": 2, "column": 1, "padx": 1}),
+            gui.Element(tk.Button(main.ROOT, text="Sign In",
+                                  width=20,
+                                  command=main.LIB.logInUser(nameentry.get(), passentry.get())
+                        ),
+                            {"row": 3, "column": 0, "columnspan": 2}),
+            gui.Element(tk.Label(main.ROOT, text="Don't have an account?"),
+                            {"row": 4, "column": 0}),
+            gui.Element(tk.Button(main.ROOT, text="Register",
+                                activeforeground="lightblue",
+                                foreground="blue",
+                                bd=0, 
+                                justify='left', 
+                                anchor='w', 
+                                command=partial(main.WIN.switchToPage, "register")),
+                            {"row": 4, "column": 1, "sticky": 'w'})
+            ])
+        
+class RegisterPage(gui.Page):
+    def __init__(self):
+        nameentry= tk.Entry(main.ROOT)
+        passentry= tk.Entry(main.ROOT)
+        super().__init__([
+            gui.Element(tk.Label(main.ROOT, height=3, text="Register an account.", font=("TkDefaultFont", 10)),
+                        {"row": 0, "column": 0, "padx": 2}),
+            gui.Element(tk.Label(main.ROOT, text="Username"),
+                        {"row": 1, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text="Password"),
+                        {"row": 2, "column": 0}),
+            gui.Element(nameentry,
+                        {"row": 1, "column": 1, "padx": 1}),
+            gui.Element(passentry,
+                        {"row": 2, "column": 1, "padx": 1}),
+            gui.Element(tk.Button(main.ROOT, text="Register", width=20, command=partial(main.LIB.registerUser, nameentry.get(), passentry.get())),
+                        {"row": 3, "column": 0, "columnspan": 2})
+        ])
