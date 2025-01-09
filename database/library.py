@@ -6,7 +6,7 @@ import hashlib
 import shutil
 from abc import ABC, abstractmethod
 from Users.user import User
-from database.book import Book
+from database.book import BookFactory, Book
 import database.search as search
 from database.iterators import UserIterator
 
@@ -51,7 +51,7 @@ class Library(_Obserable):
             booklist = csv.reader(bookfile, delimiter=',')
             for i, row in enumerate(booklist):
                 if i != 0:
-                    BOOKS.append(Book.parseBook(row))
+                    BOOKS.append(BookFactory.create_book(row))
         # copy into available books
         if not _ifFileExists('available_books.csv'):
             AVAILABLE_BOOKS.extend(book for book in BOOKS if not book._wasLoaned())
