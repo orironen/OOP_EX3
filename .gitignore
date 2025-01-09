@@ -4,3 +4,4 @@ __pycache__
 books.csv
 available_books.csv
 loaned_books.csv
+log.txt
