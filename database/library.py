@@ -199,6 +199,12 @@ class Library(_Obserable):
             self.__log__('logged in fail')
             return False
         
+    def logOutUser(self):
+        """
+        Method that records that the user was logged out.
+        """
+        self.__log__('logged out successfully')
+        
     def borrowBook(self, loaner: str, bookname: str):
         """
         Borrows a book from the library in the name of the

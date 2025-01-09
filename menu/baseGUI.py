@@ -16,10 +16,16 @@ class Page:
         self.elements= elements
 
     def setElements(self):
+        """
+        Set the page elements in a grid.
+        """
         for element in self.elements:
             element.widget.grid(element.grid)
 
     def hideElements(self):
+        """
+        Hide the page elements from view.
+        """
         for element in self.elements:
             element.widget.grid_forget()
 

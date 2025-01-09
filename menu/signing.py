@@ -53,10 +53,11 @@ class LogInPage(gui.Page):
         
     def login(self):
         """
-        Uses Library to help user enter main menu.
+        Uses Library to check user credentials, and enters main menu.
         """
         if main.LIB.logInUser(self.name.get(), self.passw.get()):
             msgbox.showinfo(title="Log In", message="Logged in successfully!")
+            main.WIN.switchToPage("main")
         else:
             msgbox.showerror(title="Log In", message="Log in failed.")
         
@@ -102,6 +103,9 @@ class RegisterPage(gui.Page):
         ])
 
     def register(self):
+        """
+        Uses library to register a user to users.csv.
+        """
         if main.LIB.registerUser(self.name.get(), self.passw.get()):
             msgbox.showinfo(title="Register", message=f"Registered successfully!")
             main.WIN.switchToPage("log in")
