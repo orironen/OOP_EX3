@@ -110,15 +110,15 @@ class Book:
 
 class BookFactory:
     @staticmethod
-    def create_book(data: dict) -> Book:
-            return Book(
-                title=data["title"],
-                author=data["author"],
-                is_loaned=data["is_loaned"],
-                copies=data["copies"],
-                genre=Genre.parseGenre(data["genre"]),
-                year=data["year"],
-            )
+    def create_book(title: str, author: str, is_loaned: bool, copies: int, genre: str, year: int) -> Book:
+        return Book(
+            title=title,
+            author=author,
+            is_loaned=is_loaned,
+            copies=copies,
+            genre=Genre.parseGenre(genre),
+            year=year,
+        )
 
 class BookDecorator:
     """
