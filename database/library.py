@@ -3,10 +3,9 @@ import csv
 import random
 import string
 import hashlib
-import shutil
 from abc import ABC, abstractmethod
 from Users.user import User
-from database.book import Book
+from database.book import Book, BookFactory
 import database.search as search
 from database.iterators import UserIterator
 
@@ -37,7 +36,7 @@ class _Obserable(ABC):
     @abstractmethod
     def notify(self, message: str):
         """
-        Notify the inputted message to all observers in a group.
+        Notify the inputted message to all observers.
         """
         pass
 
@@ -51,7 +50,7 @@ class Library(_Obserable):
             booklist = csv.reader(bookfile, delimiter=',')
             for i, row in enumerate(booklist):
                 if i != 0:
-                    BOOKS.append(Book.parseBook(row))
+                    BOOKS.append(BookFactory.create_book(row))
         # copy into available books
         if not _ifFileExists('available_books.csv'):
             AVAILABLE_BOOKS.extend(book for book in BOOKS if not book.loaned)
@@ -205,20 +204,20 @@ class Library(_Obserable):
                 book_to_borrow.addToWaitingList(loaner)
                 self.notify(f"{loaner} has been added to the waiting list for '{bookname}'.")
                 raise OSError
-            backup= deepcopy(book_to_borrow)
+            oldbook= deepcopy(book_to_borrow)
             # update book
             book_to_borrow.copies-=1
             book_to_borrow.loaned= True
             # update available books
-            self.updateBookDetails(backup, book_to_borrow, 'available_books.csv')
+            self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
             # find book in loaned
             try:
                 booksearch= search.LoanedDecorator(search.SearchByTitle())
                 loaned_book= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
-                backup= deepcopy(loaned_book)
+                oldbook= deepcopy(loaned_book)
                 loaned_book.copies+=1
-                self.updateBookDetails(backup, loaned_book, 'loaned_books.csv')
+                self.updateBookDetails(oldbook, loaned_book, 'loaned_books.csv')
             except IndexError:
                 book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
@@ -239,20 +238,20 @@ class Library(_Obserable):
             # find book in available
             booksearch= search.AvailableDecorator(search.SearchByTitle())
             book_to_return= deepcopy(booksearch.search(bookname)[0])
-            backup= deepcopy(book_to_return)
+            oldbook= deepcopy(book_to_return)
             # update book
             book_to_return.copies-=1
             book_to_return.loaned= False
             # update available books
-            self.updateBookDetails(backup, book_to_return, 'loaned_books.csv')
+            self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
             # find book in loaned
             try:
                 booksearch= search.LoanedDecorator(search.SearchByTitle())
                 book_to_return= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
-                backup= deepcopy(book_to_return)
+                oldbook= deepcopy(book_to_return)
                 book_to_return.copies+=1
-                self.updateBookDetails(backup, book_to_return, 'available_books.csv')
+                self.updateBookDetails(oldbook, book_to_return, 'available_books.csv')
             except IndexError:
                 book_to_return.copies= 1
                 # notify to waiting list
