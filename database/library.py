@@ -264,3 +264,9 @@ class Library(_Obserable):
             self.notify(message=f"The book '{book_to_return.title}' was returned by {loaner}.")
         except OSError:
             self.__log__('book borrowed fail')
+
+    def viewPopular(self):
+        """
+        View the most popular books.
+        """
+        return sorted(BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]
