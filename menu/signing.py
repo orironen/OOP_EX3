@@ -33,13 +33,13 @@ class LogInPage(gui.Page):
             gui.Element(tk.Label(main.ROOT, text="Don't have an account?"),
                             {"row": 4, "column": 0}),
             gui.Element(tk.Button(main.ROOT, text="Register",
-                                activeforeground="lightblue",
+                                activeforeground="darkblue",
                                 foreground="blue",
                                 bd=0, 
                                 justify='left', 
                                 anchor='w', 
                                 command=partial(main.WIN.switchToPage, "register")),
-                            {"row": 4, "column": 1, "sticky": 'w'})
+                            {"row": 4, "column": 1})
             ])
         
     def login(self):
@@ -70,7 +70,17 @@ class RegisterPage(gui.Page):
             gui.Element(self.passw,
                         {"row": 2, "column": 1, "padx": 1}),
             gui.Element(tk.Button(main.ROOT, text="Register", width=20, command=partial(self.register)),
-                        {"row": 3, "column": 0, "columnspan": 2})
+                        {"row": 3, "column": 0, "columnspan": 2}),
+            gui.Element(tk.Label(main.ROOT, text="Already have an account?"),
+                            {"row": 4, "column": 0}),
+            gui.Element(tk.Button(main.ROOT, text="Log in",
+                                activeforeground="darkblue",
+                                foreground="blue",
+                                bd=0, 
+                                justify='left', 
+                                anchor='w', 
+                                command=partial(main.WIN.switchToPage, "log in")),
+                            {"row": 4, "column": 1})
         ])
 
     def register(self):
