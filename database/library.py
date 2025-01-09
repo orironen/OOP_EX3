@@ -219,6 +219,8 @@ class Library(_Obserable):
             except IndexError:
                 book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
+            book_to_borrow.removeFromWaitingList(user)
+                
         except OSError:
             self.__log__('book borrowed fail')
 
@@ -248,7 +250,6 @@ class Library(_Obserable):
                 book_to_return.copies= 1
                 # notify to waiting list
                 self.notify(group= book_to_return.getWaitingList(), message= f"The book {book_to_return.title} has returned.")
-                book_to_return.clearWaitingList()
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
         except OSError:
             self.__log__('book borrowed fail')

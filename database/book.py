@@ -58,11 +58,11 @@ class Book:
         """
         self.__waiting_list.append(user)
 
-    def clearWaitingList(self):
+    def removeFromWaitingList(self, user: User):
         """
         Clears the waiting list for the book.
         """
-        self.__waiting_list.clear()
+        self.__waiting_list.remove(user)
 
     def getWaitingList(self) -> list[User]:
         """
