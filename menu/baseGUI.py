@@ -19,9 +19,9 @@ class Page:
         for element in self.elements:
             element.widget.grid(element.grid)
 
-    def destroyElements(self):
+    def hideElements(self):
         for element in self.elements:
-            element.widget.destroy()
+            element.widget.grid_forget()
 
 class MainWindow:
     """
@@ -36,7 +36,7 @@ class MainWindow:
 
     def switchToPage(self, newpage: str):
         if self.current:
-            self.current.destroyElements()
+            self.current.hideElements()
         self.current= self.pages[newpage]
         self.current.setElements()
         self.root.mainloop()

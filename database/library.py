@@ -148,28 +148,30 @@ class Library(_Obserable):
             bookwriter= csv.writer(books)
             bookwriter.writerows(rows)
 
-    def registerUser(self, name: str, password: str) -> User:
+    def registerUser(self, name: str, password: str) -> bool:
         """
-        Register a user to the library.
+        Register a user to the library. Returns True if registered, False otherwise.
         """
         # generate random salt
         salt= ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+        pword= hashlib.sha256((password+salt).encode())
         # create user
-        newuser= User(name, hashlib.sha256((password+salt).encode()), salt)
+        newuser= User(name, pword, salt)
         USERS.append(newuser)
         if not _ifFileExists('users.csv'):
-            with open('users.csv', 'x') as userfile:
+            with open('users.csv', 'x', newline='') as userfile:
                 userwriter= csv.writer(userfile, delimiter=',')
                 userwriter.writerow(["name","password","salt"])
         try:
-            with open('users.csv', 'a') as userfile:
+            with open('users.csv', 'a', newline='') as userfile:
                 userwriter= csv.writer(userfile, delimiter=',')
-                userwriter.writerow([name, password, salt])
+                userwriter.writerow([name, pword.hexdigest(), salt])
             self.__log__("registered successfully")
             self.notify(message=f"{newuser.name}'s account has been created successfully.")
-            return newuser
+            return True
         except OSError:
             self.__log__("registered fail")
+            return False
 
     def logInUser(self, username: str, password: str) -> bool:
         """
