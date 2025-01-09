@@ -287,7 +287,7 @@ class Library(_Obserable):
         View all books in the library.
         """
         self.__log__('Displayed all books successfully')
-        return sorted(BOOKS)
+        return sorted(BOOKS, key= lambda x: x.title)
     
     def viewByGenre(self):
         """
