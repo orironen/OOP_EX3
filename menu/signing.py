@@ -9,29 +9,38 @@ class LogInPage(gui.Page):
     The page for logging into the library as a user.
     """
     def __init__(self):
-        self.name= tk.Entry(main.ROOT)
-        self.passw= tk.Entry(main.ROOT)
+        self.name= tk.Entry(main.ROOT, justify='left')
+        self.passw= tk.Entry(main.ROOT, justify='left')
         super().__init__([
             gui.Element(tk.Label(main.ROOT, text="Welcome to the library!",
                                  height=3,
                                  font=("TkDefaultFont", 10)
                         ), 
                             {"row": 0, "column": 0, "padx": 2}),
-            gui.Element(tk.Label(main.ROOT, text="Username"),
-                            {"row": 1, "column": 0}),
-            gui.Element(tk.Label(main.ROOT, text="Password"),
-                            {"row": 2, "column": 0,}),
+            gui.Element(tk.Label(main.ROOT, text="Username",
+                                 justify='right',
+                                 anchor='e'
+                                 ),
+                        {"row": 1, "column": 0, "sticky": 'e'}),
+            gui.Element(tk.Label(main.ROOT, text="Password",
+                                 justify='right',
+                                 anchor='e'
+                                 ),
+                        {"row": 2, "column": 0, "sticky": 'e'}),
             gui.Element(self.name,
-                            {"row": 1, "column": 1, "padx": 1}),
+                            {"row": 1, "column": 1, "padx": 1, "sticky": 'w'}),
             gui.Element(self.passw,
-                            {"row": 2, "column": 1, "padx": 1}),
+                            {"row": 2, "column": 1, "padx": 1, "sticky": 'w'}),
             gui.Element(tk.Button(main.ROOT, text="Log In",
                                   width=20,
                                   command= partial(self.login)
                         ),
                             {"row": 3, "column": 0, "columnspan": 2}),
-            gui.Element(tk.Label(main.ROOT, text="Don't have an account?"),
-                            {"row": 4, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text="Don't have an account?",
+                                justify='right', 
+                                anchor='e'
+                                ),
+                            {"row": 4, "column": 0, "sticky": 'e'}),
             gui.Element(tk.Button(main.ROOT, text="Register",
                                 activeforeground="darkblue",
                                 foreground="blue",
@@ -39,7 +48,7 @@ class LogInPage(gui.Page):
                                 justify='left', 
                                 anchor='w', 
                                 command=partial(main.WIN.switchToPage, "register")),
-                            {"row": 4, "column": 1})
+                            {"row": 4, "column": 1, "sticky": 'w'})
             ])
         
     def login(self):
@@ -56,23 +65,32 @@ class RegisterPage(gui.Page):
     The page for registering to the library as a user.
     """
     def __init__(self):
-        self.name= tk.Entry(main.ROOT)
-        self.passw= tk.Entry(main.ROOT)
+        self.name= tk.Entry(main.ROOT, justify='left')
+        self.passw= tk.Entry(main.ROOT, justify='left')
         super().__init__([
             gui.Element(tk.Label(main.ROOT, height=3, text="Register an account.", font=("TkDefaultFont", 10)),
                         {"row": 0, "column": 0, "padx": 2}),
-            gui.Element(tk.Label(main.ROOT, text="Username"),
-                        {"row": 1, "column": 0}),
-            gui.Element(tk.Label(main.ROOT, text="Password"),
-                        {"row": 2, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text="Username",
+                                 justify='right',
+                                 anchor='e'
+                                 ),
+                        {"row": 1, "column": 0, "sticky": 'e'}),
+            gui.Element(tk.Label(main.ROOT, text="Password",
+                                 justify='right',
+                                 anchor='e'
+                                 ),
+                        {"row": 2, "column": 0, "sticky": 'e'}),
             gui.Element(self.name,
-                        {"row": 1, "column": 1, "padx": 1}),
+                        {"row": 1, "column": 1, "padx": 1, "sticky": 'w'}),
             gui.Element(self.passw,
-                        {"row": 2, "column": 1, "padx": 1}),
+                        {"row": 2, "column": 1, "padx": 1, "sticky": 'w'}),
             gui.Element(tk.Button(main.ROOT, text="Register", width=20, command=partial(self.register)),
                         {"row": 3, "column": 0, "columnspan": 2}),
-            gui.Element(tk.Label(main.ROOT, text="Already have an account?"),
-                            {"row": 4, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text="Already have an account?",
+                                justify='right', 
+                                anchor='e'
+                                ),
+                            {"row": 4, "column": 0, "sticky": 'e'}),
             gui.Element(tk.Button(main.ROOT, text="Log in",
                                 activeforeground="darkblue",
                                 foreground="blue",
@@ -80,7 +98,7 @@ class RegisterPage(gui.Page):
                                 justify='left', 
                                 anchor='w', 
                                 command=partial(main.WIN.switchToPage, "log in")),
-                            {"row": 4, "column": 1})
+                            {"row": 4, "column": 1, "sticky": 'w'})
         ])
 
     def register(self):
