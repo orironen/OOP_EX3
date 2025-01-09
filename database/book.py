@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from typing import Self
 
+from Users.user import User
+
 class Genre(Enum):
     """
     An enum representing all the genres listed in the books.csv.
@@ -42,24 +44,25 @@ class Book:
     author, year, and other info.
     """
     def __init__(self, title: str, author: str, is_loaned: bool, copies: int, genre: Genre, year: int):
-        self._title = title
-        self._author = author
-        self._loaned = is_loaned
-        self._copies = copies
-        self._genre = genre
-        self._year = year
+        self.title = title
+        self.author = author
+        self.loaned = is_loaned
+        self.copies = copies
+        self.genre = genre
+        self.year = year
+        self.__waiting_list: list[User]= []
 
-    def _setLoaned(self, input: bool) -> bool:
+    def addToWaitingList(self, user: User):
         """
-        Sets if the book has been loaned or not.
+        Add a user to the book's waiting list.
         """
-        self._loaned = input
+        self.__waiting_list.append(user)
 
-    def _wasLoaned(self) -> bool:
+    def getWaitingList(self) -> list[User]:
         """
-        Returns if the book was loaned or not.
+        Get a list of users waiting for the book.
         """
-        return self._loaned
+        return self.__waiting_list
     
     @classmethod
     def __yesNoBool(cls, string: str) -> bool:
@@ -84,12 +87,12 @@ class Book:
         Returns a list object of all the book's fields.
         """
         return [
-            self._title,
-            self._author,
-            Book.__boolYesNo(self._loaned),
-            self._copies,
-            str(self._genre),
-            self._year
+            self.title,
+            self.author,
+            Book.__boolYesNo(self.loaned),
+            self.copies,
+            str(self.genre),
+            self.year
         ]
 
     @classmethod
@@ -133,11 +136,11 @@ class popularBook(BookDecorator):
     def get_waiting_list(self):
         return self.waiting_list
 
-class AvailableBook(BookDecorator):
+class availableBook(BookDecorator):
 
     def is_available(self) -> bool:
         return not self.isLoaned()
 
-class BorrowedBook(BookDecorator):
+class borrowedBook(BookDecorator):
     def is_borrowed(self) -> bool:
         return self._book._is_loaned()

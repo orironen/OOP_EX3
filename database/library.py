@@ -105,7 +105,7 @@ class Library(_Obserable):
         # read csv
         bookfile= _csvAsMatrix(csvfile)
         # remove relevant row
-        rows= [row for row in bookfile if row[0] == book._title]
+        rows= [row for row in bookfile if row[0] == book.title]
         # write to csv
         with open(csvfile, 'w', newline='') as books:
             bookwriter= csv.writer(books)
@@ -134,7 +134,7 @@ class Library(_Obserable):
         # read csv
         bookfile= _csvAsMatrix(csvfile)
         # update relevant row 
-        rows= [newBook.toList() if oldBook._title == row[0] else row for row in bookfile]
+        rows= [newBook.toList() if oldBook.title == row[0] else row for row in bookfile]
         # write to csv
         with open(csvfile, 'w', newline='') as books:
             bookwriter= csv.writer(books)
@@ -178,7 +178,7 @@ class Library(_Obserable):
             self.__log__('logged in fail')
             return False
         
-    def borrowBook(self, bookname: str):
+    def borrowBook(self, user: User, bookname: str):
         """
         Borrows a book from the library in the name of the
         mentioned user.
@@ -186,11 +186,17 @@ class Library(_Obserable):
         try:
             # find book in available
             booksearch= strategies.Search(strategies.SearchByTitle())
-            book_to_borrow= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
+            try:
+                book_to_borrow= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
+            except IndexError:
+                # add to waiting list
+                book_to_borrow= deepcopy(booksearch.execute_search(bookname, BOOKS)[0])
+                book_to_borrow.addToWaitingList(user)
+                raise OSError
             backup= deepcopy(book_to_borrow)
             # update book
-            book_to_borrow._copies-=1
-            book_to_borrow._setLoaned(True)
+            book_to_borrow.copies-=1
+            book_to_borrow.loaned= True
             # update available books
             self.updateBookDetails(backup, book_to_borrow, 'available_books.csv')
             # find book in loaned
@@ -198,10 +204,10 @@ class Library(_Obserable):
                 loaned_book= deepcopy(booksearch.execute_search(bookname, LOANED_BOOKS)[0])
                 # update loaned books
                 backup= deepcopy(loaned_book)
-                loaned_book._copies+=1
+                loaned_book.copies+=1
                 self.updateBookDetails(backup, loaned_book, 'loaned_books.csv')
             except IndexError:
-                book_to_borrow._copies= 1
+                book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
         except OSError:
             self.__log__('book borrowed fail')
@@ -217,8 +223,8 @@ class Library(_Obserable):
             book_to_return= deepcopy(booksearch.execute_search(bookname, LOANED_BOOKS)[0])
             backup= deepcopy(book_to_return)
             # update book
-            book_to_return._copies-=1
-            book_to_return._setLoaned(False)
+            book_to_return.copies-=1
+            book_to_return.loaned= False
             # update available books
             self.updateBookDetails(backup, book_to_return, 'loaned_books.csv')
             # find book in loaned
@@ -226,10 +232,10 @@ class Library(_Obserable):
                 returned_book= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
                 # update loaned books
                 backup= deepcopy(returned_book)
-                returned_book._copies+=1
+                returned_book.copies+=1
                 self.updateBookDetails(backup, returned_book, 'available_books.csv')
             except IndexError:
-                book_to_return._copies= 1
+                book_to_return.copies= 1
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
         except OSError:
             self.__log__('book borrowed fail')
