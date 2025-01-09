@@ -282,8 +282,37 @@ class Library(_Obserable):
         except OSError:
             self.__log__('book borrowed fail')
 
+    def viewAll(self):
+        """
+        View all books in the library.
+        """
+        self.__log__('Displayed all books successfully')
+        return sorted(BOOKS)
+    
+    def viewByGenre(self):
+        """
+        View all books in the library by genre.
+        """
+        self.__log__('Displayed book by category successfully')
+        return sorted(BOOKS, key= lambda x: str(x.genre))
+    
+    def viewAvailable(self):
+        """
+        View all books that are available.
+        """
+        self.__log__('Displayed available books successfully')
+        return sorted(AVAILABLE_BOOKS)
+    
+    def viewLoaned(self):
+        """
+        View all books that have been loaned.
+        """
+        self.__log__('Displayed borrowed books successfully')
+        return sorted(LOANED_BOOKS)
+    
     def viewPopular(self):
         """
         View the most popular books.
         """
+        self.__log__('Displayed popular books successfully')
         return sorted(BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]

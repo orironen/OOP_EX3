@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-from copy import deepcopy
-import database.library as library
 from database.book import Book
 from database.iterators import BookIterator
 

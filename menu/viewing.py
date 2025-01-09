@@ -1,8 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
 import menu.baseGUI as gui
 import menu.mainGUI as main
-from database.library import BOOKS
 
 class ViewPage(gui.Page):
     """
@@ -11,11 +9,13 @@ class ViewPage(gui.Page):
     def __init__(self, view: str):
         # select sorting option
         if view == "all":
-            booklist= BOOKS
+            booklist= main.LIB.viewAll()
+        elif view == "genre":
+            booklist= main.LIB.viewByGenre()
         elif view == "available":
-            booklist= [book for book in BOOKS if not book.loaned]
+            booklist= main.LIB.viewAvailable()
         elif view == "loaned":
-            booklist= [book for book in BOOKS if book.loaned]
+            booklist= main.LIB.viewLoaned()
         else:
             booklist= main.LIB.viewPopular()
         # create table
