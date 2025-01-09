@@ -7,7 +7,7 @@ import shutil
 from abc import ABC, abstractmethod
 from Users.user import User
 from database.book import Book
-import database.strategies as strategies
+import database.search as search
 from database.iterators import UserIterator
 
 BOOKS: list[Book] = []
@@ -195,12 +195,13 @@ class Library(_Obserable):
         """
         try:
             # find book in available
-            booksearch= strategies.Search(strategies.SearchByTitle())
             try:
-                book_to_borrow= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
+                booksearch= search.AvailableDecorator(search.SearchByTitle())
+                book_to_borrow= deepcopy(booksearch.search(bookname)[0])
             except IndexError:
                 # add to waiting list
-                book_to_borrow= deepcopy(booksearch.execute_search(bookname, BOOKS)[0])
+                booksearch= search.SearchByTitle()
+                book_to_borrow= deepcopy(booksearch.execute_search(bookname)[0])
                 book_to_borrow.addToWaitingList(user)
                 raise OSError
             backup= deepcopy(book_to_borrow)
@@ -211,7 +212,8 @@ class Library(_Obserable):
             self.updateBookDetails(backup, book_to_borrow, 'available_books.csv')
             # find book in loaned
             try:
-                loaned_book= deepcopy(booksearch.execute_search(bookname, LOANED_BOOKS)[0])
+                booksearch= search.LoanedDecorator(search.SearchByTitle())
+                loaned_book= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
                 backup= deepcopy(loaned_book)
                 loaned_book.copies+=1
@@ -231,8 +233,8 @@ class Library(_Obserable):
         """
         try:
             # find book in available
-            booksearch= strategies.Search(strategies.SearchByTitle())
-            book_to_return= deepcopy(booksearch.execute_search(bookname, LOANED_BOOKS)[0])
+            booksearch= search.AvailableDecorator(search.SearchByTitle())
+            book_to_return= deepcopy(booksearch.search(bookname)[0])
             backup= deepcopy(book_to_return)
             # update book
             book_to_return.copies-=1
@@ -241,7 +243,8 @@ class Library(_Obserable):
             self.updateBookDetails(backup, book_to_return, 'loaned_books.csv')
             # find book in loaned
             try:
-                returned_book= deepcopy(booksearch.execute_search(bookname, AVAILABLE_BOOKS)[0])
+                booksearch= search.LoanedDecorator(search.SearchByTitle())
+                returned_book= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
                 backup= deepcopy(returned_book)
                 returned_book.copies+=1
