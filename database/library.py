@@ -168,6 +168,7 @@ class Library(_Obserable):
                 userwriter= csv.writer(userfile, delimiter=',')
                 userwriter.writerow([name, password, salt])
             self.__log__("registered successfully")
+            self.notify(group=[newuser],message=f"Welcome to the library, {newuser.name}! Your account has been created successfully.")
             return newuser
         except OSError:
             self.__log__("registered fail")
@@ -183,6 +184,8 @@ class Library(_Obserable):
                 current= user
         if current.passwordMatch(password):
             self.__log__('logged in successfully')
+            self.notify(group=[current],message=f"Welcome back, {current.name}! You have again logged in."
+            )
             return True
         else:
             self.__log__('logged in fail')
@@ -203,6 +206,7 @@ class Library(_Obserable):
                 booksearch= search.SearchByTitle()
                 book_to_borrow= deepcopy(booksearch.execute_search(bookname)[0])
                 book_to_borrow.addToWaitingList(user)
+                self.notify(group=[user],message=f"The book '{bookname}' is currently unavailable. You have been added to the waiting list.")
                 raise OSError
             backup= deepcopy(book_to_borrow)
             # update book
@@ -222,6 +226,7 @@ class Library(_Obserable):
                 book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
             book_to_borrow.removeFromWaitingList(user)
+            self.notify(group=[user],message=f"The book '{book_to_borrow.title}' has been successfully borrowed")
                 
         except OSError:
             self.__log__('book borrowed fail')
@@ -256,3 +261,4 @@ class Library(_Obserable):
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
         except OSError:
             self.__log__('book borrowed fail')
+            self.notify(group=USERS,message=f"Failed to return the book '{bookname}'. Please try again.")

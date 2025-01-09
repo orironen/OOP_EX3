@@ -222,4 +222,4 @@ class availableBook(BookDecorator):
 
 class borrowedBook(BookDecorator):
     def is_borrowed(self) -> bool:
-        return self._book._is_loaned()
+        return self.isloaned()
