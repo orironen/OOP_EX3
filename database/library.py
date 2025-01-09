@@ -154,7 +154,7 @@ class Library(_Obserable):
         """
         # generate random salt
         salt= ''.join(random.choices(string.ascii_letters + string.digits, k=5))
-        pword= hashlib.sha256((password+salt).encode())
+        pword= hashlib.sha256((password+salt).encode()).hexdigest()
         # create user
         newuser= User(name, pword, salt)
         USERS.append(newuser)
@@ -165,7 +165,7 @@ class Library(_Obserable):
         try:
             with open('users.csv', 'a', newline='') as userfile:
                 userwriter= csv.writer(userfile, delimiter=',')
-                userwriter.writerow([name, pword.hexdigest(), salt])
+                userwriter.writerow([name, pword, salt])
             self.__log__("registered successfully")
             self.notify(message=f"{newuser.name}'s account has been created successfully.")
             return True

@@ -15,7 +15,7 @@ class User:
         """
         Check if the given phrase matches the login password.
         """
-        return hashlib.sha256((entered+self.__salt).encode()) == self.__password
+        return hashlib.sha256((entered+self.__salt).encode()).hexdigest() == self.__password
     
     def update(self, message: str):
         self.__messages.append(message)
