@@ -42,7 +42,7 @@ class SearchByAuthor(_SearchStrategy):
     
 class SearchByGenre(_SearchStrategy):
     """
-    Searches the book list by the author name.
+    Searches the book list by the book genre.
     """
     def search(self, query: str, books: list[Book]) -> list[Book]:
         return super().search(query, books, 'genre')
@@ -58,7 +58,6 @@ class SearchDecorator(SearchInterface):
     """
     Base decorator that wraps a search component.
     """
-    LIST: list[Book] = deepcopy(library.BOOKS)
     def __init__(self, search_component: SearchInterface):
         self._search = search_component
 
@@ -69,38 +68,38 @@ class AvailableDecorator(SearchDecorator):
     """
     Searches only available books.
     """
-    def search(self, query: str) -> list[Book]:
-        self.LIST = [book for book in self.LIST if not book.loaned]
-        return self._search.search(query, self.LIST)
+    def search(self, query: str, books: list[Book]) -> list[Book]:
+        sorted_books = [book for book in books if not book.loaned]
+        return self._search.search(query, sorted_books)
 
 class LoanedDecorator(SearchDecorator):
     """
     Searches only loaned books.
     """
-    def search(self, query: str) -> list[Book]:
-        self.LIST = [book for book in self.LIST if book.loaned]
-        return self._search.search(query, self.LIST)
+    def search(self, query: str, books: list[Book]) -> list[Book]:
+        sorted_books = [book for book in books if book.loaned]
+        return self._search.search(query, sorted_books)
 
 class PopularDecorator(SearchDecorator):
     """
     Sorts search results based on book popularity.
     """
-    def search(self, query: str) -> list[Book]:
-        self.LIST.sort(key=lambda x: x.borrowed, reverse=True)
-        return self._search.search(query, self.LIST)
+    def search(self, query: str, books: list[Book]) -> list[Book]:
+        sorted_books= sorted(books, key=lambda x: x.borrowed, reverse=True)
+        return self._search.search(query, sorted_books)
 
 class AlphabeticalDecorator(SearchDecorator):
     """
     Sorts search results based on alphabetical order.
     """
-    def search(self, query: str) -> list[Book]:
-        self.LIST.sort(key=lambda x: x.title)
-        return self._search.search(query, self.LIST)
+    def search(self, query: str, books: list[Book]) -> list[Book]:
+        sorted_books= sorted(books, key=lambda x: x.title)
+        return self._search.search(query, sorted_books)
     
 class GenreDecorator(SearchDecorator):
     """
     Sorts search results based on genre.
     """
-    def search(self, query: str) -> list[Book]:
-        self.LIST.sort(key= lambda x: str(x.genre))
-        return self._search.search(query, self.LIST)
+    def search(self, query: str, books: list[Book]) -> list[Book]:
+        sorted_books= sorted(books, key= lambda x: str(x.genre))
+        return self._search.search(query, sorted_books)

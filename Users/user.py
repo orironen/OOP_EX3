@@ -1,7 +1,5 @@
 import hashlib
 
-from database.book import Book
-
 class User:
     """
     Represents a User. Includes its username, password, and the

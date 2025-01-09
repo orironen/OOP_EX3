@@ -34,7 +34,7 @@ def _ifFileExists(file: str) -> bool:
 
 class _Obserable(ABC):
     @abstractmethod
-    def notify(self, group: list, message: str):
+    def notify(self, message: str):
         """
         Notify the inputted message to all observers.
         """
@@ -53,13 +53,13 @@ class Library(_Obserable):
                     BOOKS.append(BookFactory.create_book(row))
         # copy into available books
         if not _ifFileExists('available_books.csv'):
-            AVAILABLE_BOOKS.extend(book for book in BOOKS if not book._wasLoaned())
+            AVAILABLE_BOOKS.extend(book for book in BOOKS if not book.loaned)
             with open('available_books.csv', 'x', newline='') as bookfile:
                 writer= csv.writer(bookfile, delimiter=',')
                 writer.writerow(["title","author","is_loaned","copies","genre","year"])
                 writer.writerows(book.toList() for book in AVAILABLE_BOOKS)
         if not _ifFileExists('loaned_books.csv'):
-            LOANED_BOOKS.extend(book for book in BOOKS if book._wasLoaned())
+            LOANED_BOOKS.extend(book for book in BOOKS if book.loaned)
             with open('loaned_books.csv', 'x', newline='') as bookfile:
                 writer= csv.writer(bookfile, delimiter=',')
                 writer.writerow(["title","author","is_loaned","copies","genre","year"])
@@ -227,6 +227,7 @@ class Library(_Obserable):
         mentioned user.
         """
         try:
+            book_to_return: Book
             # find book in available
             booksearch= search.AvailableDecorator(search.SearchByTitle())
             book_to_return= deepcopy(booksearch.search(bookname)[0])
@@ -239,18 +240,19 @@ class Library(_Obserable):
             # find book in loaned
             try:
                 booksearch= search.LoanedDecorator(search.SearchByTitle())
-                returned_book= deepcopy(booksearch.search(bookname)[0])
+                book_to_return= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
-                backup= deepcopy(returned_book)
-                returned_book.copies+=1
-                self.updateBookDetails(backup, returned_book, 'available_books.csv')
+                backup= deepcopy(book_to_return)
+                book_to_return.copies+=1
+                self.updateBookDetails(backup, book_to_return, 'available_books.csv')
             except IndexError:
                 book_to_return.copies= 1
                 # notify to waiting list
                 self.notify(message= f"The book {book_to_return.title} has returned.")
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
             book_to_return.borrowed-=1
-            book_to_return.removeFromWaitingList(loaner)
+            if loaner in book_to_return.getWaitingList():
+                book_to_return.removeFromWaitingList(loaner)
             self.__log__('book returned successfully')
         except OSError:
             self.__log__('book returned fail')
