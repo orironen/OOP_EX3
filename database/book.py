@@ -50,6 +50,7 @@ class Book:
         self.copies = copies
         self.genre = genre
         self.year = year
+        self.borrowed= 0
         self.__waiting_list: list[str]= []
 
     def addToWaitingList(self, loaner: str):

@@ -3,7 +3,6 @@ import csv
 import random
 import string
 import hashlib
-import shutil
 from abc import ABC, abstractmethod
 from Users.user import User
 from database.book import BookFactory, Book
@@ -37,7 +36,7 @@ class _Obserable(ABC):
     @abstractmethod
     def notify(self, group: list, message: str):
         """
-        Notify the inputted message to all observers in a group.
+        Notify the inputted message to all observers.
         """
         pass
 
@@ -76,15 +75,9 @@ class Library(_Obserable):
         with open('log.txt', 'a') as log:
             log.write(f'{action}\n')
 
-    def notify(self, group: list, message: str):
-        for observer in group:
-            observer.update(message)
-
     def notify(self, message: str):
-        """
-        Notify the inputted message to all observers.
-        """
-        super().notify(USERS, message)
+        for user in USERS:
+            user.update(message)
 
     def __addBookToCSV(self, book: Book, csvfile: str):
         """
@@ -188,26 +181,28 @@ class Library(_Obserable):
             self.__log__('logged in fail')
             return False
         
-    def borrowBook(self, user: User, bookname: str):
+    def borrowBook(self, loaner: str, bookname: str):
         """
         Borrows a book from the library in the name of the
         mentioned user.
         """
         try:
             # find book in available
+            book_to_borrow: Book
             try:
                 booksearch= search.AvailableDecorator(search.SearchByTitle())
                 book_to_borrow= deepcopy(booksearch.search(bookname)[0])
             except IndexError:
                 # add to waiting list
                 booksearch= search.SearchByTitle()
-                book_to_borrow= deepcopy(booksearch.execute_search(bookname)[0])
-                book_to_borrow.addToWaitingList(user)
+                book_to_borrow= deepcopy(booksearch.search(bookname)[0])
+                book_to_borrow.addToWaitingList(loaner)
                 raise OSError
             backup= deepcopy(book_to_borrow)
             # update book
             book_to_borrow.copies-=1
-            book_to_borrow.loaned= True
+            if book_to_borrow.copies == 0:
+                book_to_borrow.loaned= True
             # update available books
             self.updateBookDetails(backup, book_to_borrow, 'available_books.csv')
             # find book in loaned
@@ -221,12 +216,12 @@ class Library(_Obserable):
             except IndexError:
                 book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
-            book_to_borrow.removeFromWaitingList(user)
-                
+            book_to_borrow.borrowed+=1
+            self.__log__('book borrowed successfully')
         except OSError:
             self.__log__('book borrowed fail')
 
-    def returnBook(self, bookname: str):
+    def returnBook(self, loaner: str, bookname: str):
         """
         Borrows a book from the library in the name of the
         mentioned user.
@@ -252,7 +247,16 @@ class Library(_Obserable):
             except IndexError:
                 book_to_return.copies= 1
                 # notify to waiting list
-                self.notify(group= book_to_return.getWaitingList(), message= f"The book {book_to_return.title} has returned.")
+                self.notify(message= f"The book {book_to_return.title} has returned.")
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
+            book_to_return.borrowed-=1
+            book_to_return.removeFromWaitingList(loaner)
+            self.__log__('book returned successfully')
         except OSError:
-            self.__log__('book borrowed fail')
+            self.__log__('book returned fail')
+
+    def viewPopular(self):
+        """
+        View the most popular books.
+        """
+        return sorted(LOANED_BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]

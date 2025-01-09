@@ -39,6 +39,13 @@ class SearchByAuthor(_SearchStrategy):
     """
     def search(self, query: str, books: list[Book]) -> list[Book]:
         return super().search(query, books, 'author')
+    
+class SearchByGenre(_SearchStrategy):
+    """
+    Searches the book list by the author name.
+    """
+    def search(self, query: str, books: list[Book]) -> list[Book]:
+        return super().search(query, books, 'genre')
 
 class SearchByYear(_SearchStrategy):
     """
@@ -79,7 +86,7 @@ class PopularDecorator(SearchDecorator):
     Sorts search results based on book popularity.
     """
     def search(self, query: str) -> list[Book]:
-        self.LIST.sort(key=lambda x: len(x.getWaitingList()), reverse=True)
+        self.LIST.sort(key=lambda x: x.borrowed, reverse=True)
         return self._search.search(query, self.LIST)
 
 class AlphabeticalDecorator(SearchDecorator):
