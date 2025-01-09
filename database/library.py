@@ -35,9 +35,9 @@ def _ifFileExists(file: str) -> bool:
 
 class _Obserable(ABC):
     @abstractmethod
-    def notify(self, message: str):
+    def notify(self, group: list, message: str):
         """
-        Notify the inputted message to all observers.
+        Notify the inputted message to all observers in a group.
         """
         pass
 
@@ -75,6 +75,16 @@ class Library(_Obserable):
         """
         with open('log.txt', 'a') as log:
             log.write(f'{action}\n')
+
+    def notify(self, group: list, message: str):
+        for observer in group:
+            observer.update(message)
+
+    def notify(self, message: str):
+        """
+        Notify the inputted message to all observers.
+        """
+        super().notify(USERS, message)
 
     def __addBookToCSV(self, book: Book, csvfile: str):
         """
@@ -236,10 +246,9 @@ class Library(_Obserable):
                 self.updateBookDetails(backup, returned_book, 'available_books.csv')
             except IndexError:
                 book_to_return.copies= 1
+                # notify to waiting list
+                self.notify(group= book_to_return.getWaitingList(), message= f"The book {book_to_return.title} has returned.")
+                book_to_return.clearWaitingList()
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
         except OSError:
             self.__log__('book borrowed fail')
-
-    def notify(self, message: str):
-        for observer in USERS:
-            observer.update(message)

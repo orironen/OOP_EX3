@@ -58,6 +58,12 @@ class Book:
         """
         self.__waiting_list.append(user)
 
+    def clearWaitingList(self):
+        """
+        Clears the waiting list for the book.
+        """
+        self.__waiting_list.clear()
+
     def getWaitingList(self) -> list[User]:
         """
         Get a list of users waiting for the book.
