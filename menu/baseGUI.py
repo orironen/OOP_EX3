@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 class Element:
     """
@@ -7,6 +8,29 @@ class Element:
     def __init__(self, wdgt: tk.Widget, kwarg: dict):
         self.widget= wdgt
         self.grid= kwarg
+
+class Table:
+    """
+    A visual representation of a table in tkinter.
+    """
+    def __init__(self, root: tk.Tk, columns: tuple, content: list[list]):
+        self.frame = ttk.Frame(root)
+        tree = ttk.Treeview(self.frame, columns=columns, show='headings')
+        for col in columns:
+            tree.heading(col, text=col)
+            tree.column(col, anchor='center')
+        vsb = ttk.Scrollbar(self.frame, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=vsb.set)
+        tree.grid(row=0, column=0, sticky='nsew')
+        vsb.grid(row=0, column=1, sticky='ns')
+        for item in content:
+            tree.insert('', 'end', values=item)
+
+    def getFrame(self) -> tk.Frame:
+        """
+        Get the frame which the table is connected to.
+        """
+        return self.frame
 
 class Page:
     """

@@ -2,6 +2,7 @@ from functools import partial
 from database.library import Library
 import tkinter as tk
 import tkinter.messagebox as msgbox
+import menu.viewing as view
 import menu.baseGUI as gui
 import menu.signing as sign
 
@@ -20,7 +21,8 @@ class MainPage(gui.Page):
                                  font=("TkDefaultFont", 10)),
                         {"row": 0, "column": 0, "columnspan": 3}),
             gui.Element(tk.Button(ROOT, text="View Books",
-                                  width=20),
+                                  width=20,
+                                  command=partial(WIN.switchToPage, "view")),
                         {"row": 1, "column": 0}),
             gui.Element(tk.Button(ROOT, text="Add Book",
                                   width=20),
@@ -68,6 +70,7 @@ def start_gui(library: Library):
     WIN.initPages({
         "log in": sign.LogInPage(),
         "register": sign.RegisterPage(),
-        "main": MainPage()
+        "main": MainPage(),
+        "view": view.ViewPage("all")
     })
     WIN.switchToPage("log in")
