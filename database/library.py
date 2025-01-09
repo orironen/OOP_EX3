@@ -227,6 +227,7 @@ class Library(_Obserable):
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
             book_to_borrow.removeFromWaitingList(user)
             self.notify(group=[user],message=f"The book '{book_to_borrow.title}' has been successfully borrowed")
+
                 
         except OSError:
             self.__log__('book borrowed fail')
