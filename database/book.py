@@ -50,21 +50,22 @@ class Book:
         self.copies = copies
         self.genre = genre
         self.year = year
-        self.__waiting_list: list[User]= []
+        self.borrowed= 0
+        self.__waiting_list: list[str]= []
 
-    def addToWaitingList(self, user: User):
+    def addToWaitingList(self, loaner: str):
         """
         Add a user to the book's waiting list.
         """
-        self.__waiting_list.append(user)
+        self.__waiting_list.append(loaner)
 
-    def removeFromWaitingList(self, user: User):
+    def removeFromWaitingList(self, loaner: str):
         """
         Clears the waiting list for the book.
         """
-        self.__waiting_list.remove(user)
+        self.__waiting_list.remove(loaner)
 
-    def getWaitingList(self) -> list[User]:
+    def getWaitingList(self) -> list[str]:
         """
         Get a list of users waiting for the book.
         """
@@ -193,33 +194,3 @@ class BookFactory:
             Genre.FANTASY: FantasyBook
         }
         return genre_class_dict[genre].parseBook(row)
-
-class BookDecorator:
-    """
-    Base class for decorating a Book object.
-    """
-    def __init__(self, book: Book):
-        self._book = book
-
-    def __getattr__(self, name):
-        return getattr(self._book, name)
-
-class popularBook(BookDecorator):
-    def __init__(self, book: Book):
-        super().__init__(book)
-        self.waiting_list = []
-
-    def add_to_waiting_list(self, user: str):
-        if self.isLoaned():
-            self.waiting_list.append(user)
-
-    def get_waiting_list(self):
-        return self.waiting_list
-
-class availableBook(BookDecorator):
-    def is_available(self) -> bool:
-        return not self.isLoaned()
-
-class borrowedBook(BookDecorator):
-    def is_borrowed(self) -> bool:
-        return self.isloaned()
