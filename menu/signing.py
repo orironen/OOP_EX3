@@ -1,9 +1,19 @@
 from functools import partial
 import tkinter as tk
+import tkinter.messagebox as msgbox
 import menu.baseGUI as gui
 import menu.mainGUI as main
 
-class SignInPage(gui.Page):
+def login(username: str, password: str):
+    """
+    Uses Library to help user enter main menu.
+    """
+    if main.LIB.logInUser(username, password):
+        msgbox.showinfo(title="Log In", message="Logged in successfully!")
+    else:
+        msgbox.showerror(title="Log In", message="Log in failed.")
+
+class LogInPage(gui.Page):
     def __init__(self):
         nameentry= tk.Entry(main.ROOT)
         passentry= tk.Entry(main.ROOT)
@@ -21,9 +31,9 @@ class SignInPage(gui.Page):
                             {"row": 1, "column": 1, "padx": 1}),
             gui.Element(passentry,
                             {"row": 2, "column": 1, "padx": 1}),
-            gui.Element(tk.Button(main.ROOT, text="Sign In",
+            gui.Element(tk.Button(main.ROOT, text="Log In",
                                   width=20,
-                                  command=main.LIB.logInUser(nameentry.get(), passentry.get())
+                                  command= partial(login, nameentry.get(), passentry.get())
                         ),
                             {"row": 3, "column": 0, "columnspan": 2}),
             gui.Element(tk.Label(main.ROOT, text="Don't have an account?"),

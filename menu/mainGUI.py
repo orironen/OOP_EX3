@@ -16,7 +16,7 @@ def start_gui(library: Library):
     global WIN
     WIN= gui.MainWindow(ROOT)
     WIN.initPages({
-        "sign in": sign.SignInPage(),
+        "sign in": sign.LogInPage(),
         "register": sign.RegisterPage()
     })
     WIN.switchToPage("sign in")
