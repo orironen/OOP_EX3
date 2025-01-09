@@ -3,9 +3,10 @@ import csv
 import random
 import string
 import hashlib
+import shutil
 from abc import ABC, abstractmethod
 from Users.user import User
-from database.book import BookFactory, Book
+from database.book import Book
 import database.search as search
 from database.iterators import UserIterator
 
@@ -36,7 +37,7 @@ class _Obserable(ABC):
     @abstractmethod
     def notify(self, message: str):
         """
-        Notify the inputted message to all observers.
+        Notify the inputted message to all observers in a group.
         """
         pass
 
@@ -50,7 +51,7 @@ class Library(_Obserable):
             booklist = csv.reader(bookfile, delimiter=',')
             for i, row in enumerate(booklist):
                 if i != 0:
-                    BOOKS.append(BookFactory.create_book(row))
+                    BOOKS.append(Book.parseBook(row))
         # copy into available books
         if not _ifFileExists('available_books.csv'):
             AVAILABLE_BOOKS.extend(book for book in BOOKS if not book.loaned)
@@ -76,6 +77,9 @@ class Library(_Obserable):
             log.write(f'{action}\n')
 
     def notify(self, message: str):
+        """
+        Notify the inputted message to all observers.
+        """
         for user in USERS:
             user.update(message)
 
@@ -161,6 +165,7 @@ class Library(_Obserable):
                 userwriter= csv.writer(userfile, delimiter=',')
                 userwriter.writerow([name, password, salt])
             self.__log__("registered successfully")
+            self.notify(message=f"Welcome to the library, {newuser.name}! Your account has been created successfully.")
             return newuser
         except OSError:
             self.__log__("registered fail")
@@ -176,6 +181,7 @@ class Library(_Obserable):
                 current= user
         if current.passwordMatch(password):
             self.__log__('logged in successfully')
+            self.notify(message=f"{current.name} has logged in.")
             return True
         else:
             self.__log__('logged in fail')
@@ -195,14 +201,14 @@ class Library(_Obserable):
             except IndexError:
                 # add to waiting list
                 booksearch= search.SearchByTitle()
-                book_to_borrow= deepcopy(booksearch.search(bookname)[0])
+                book_to_borrow= deepcopy(booksearch.execute_search(bookname)[0])
                 book_to_borrow.addToWaitingList(loaner)
+                self.notify(f"{loaner} has been added to the waiting list for '{bookname}'.")
                 raise OSError
             backup= deepcopy(book_to_borrow)
             # update book
             book_to_borrow.copies-=1
-            if book_to_borrow.copies == 0:
-                book_to_borrow.loaned= True
+            book_to_borrow.loaned= True
             # update available books
             self.updateBookDetails(backup, book_to_borrow, 'available_books.csv')
             # find book in loaned
@@ -216,8 +222,10 @@ class Library(_Obserable):
             except IndexError:
                 book_to_borrow.copies= 1
                 self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
-            book_to_borrow.borrowed+=1
-            self.__log__('book borrowed successfully')
+            book_to_borrow.removeFromWaitingList(loaner)
+            self.notify(message=f"The book '{book_to_borrow.title}' has been successfully borrowed")
+
+                
         except OSError:
             self.__log__('book borrowed fail')
 
@@ -255,10 +263,5 @@ class Library(_Obserable):
                 book_to_return.removeFromWaitingList(loaner)
             self.__log__('book returned successfully')
         except OSError:
-            self.__log__('book returned fail')
-
-    def viewPopular(self):
-        """
-        View the most popular books.
-        """
-        return sorted(BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]
+            self.__log__('book borrowed fail')
+            self.notify(message=f"Failed to return the book '{bookname}'. Please try again.")
