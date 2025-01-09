@@ -175,12 +175,13 @@ class Library(_Obserable):
         """
         Returns True if the password matches the username.
         """
+        current= None
         userIter= UserIterator()
         while userIter.hasNext():
             user= userIter.next()
             if user.name == username:
                 current= user
-        if current.passwordMatch(password):
+        if current and current.passwordMatch(password):
             self.__log__('logged in successfully')
             self.notify(message=f"{current.name} has logged in.")
             return True
