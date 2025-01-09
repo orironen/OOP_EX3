@@ -71,7 +71,7 @@ class Book:
         return self.__waiting_list
     
     @classmethod
-    def __yesNoBool(cls, string: str) -> bool:
+    def _yesNoBool(cls, string: str) -> bool:
         """
         Returns True if the string is 'Yes', False otherwise.
         """
@@ -80,7 +80,7 @@ class Book:
         return False
 
     @classmethod
-    def __boolYesNo(cls, boolean: bool) -> str:
+    def _boolYesNo(cls, boolean: bool) -> str:
         """
         Returns 'Yes' if the boolean is True, 'No' otherwise.
         """
@@ -95,30 +95,104 @@ class Book:
         return [
             self.title,
             self.author,
-            Book.__boolYesNo(self.loaned),
+            Book._boolYesNo(self.loaned),
             self.copies,
             str(self.genre),
             self.year
         ]
-
+    
+class GenreBook(Book):
+    """
+    Base class for genre-specific books.
+    """
+    GENRE = None
+    
     @classmethod
     def parseBook(cls, l: list) -> Self:
         """
         Parses a Book object out of the given list.
         """
-        return Book(l[0], l[1], Book.__yesNoBool(l[2]), int(l[3]), Genre.parseGenre(l[4]), int(l[5]))
+        return cls(l[0], l[1], Book._yesNoBool(l[2]), int(l[3]), cls.GENRE, int(l[4]))
+
+class FictionBook(GenreBook):
+    GENRE = Genre.FICTION
+
+class DystopianBook(GenreBook):
+    GENRE = Genre.DYSTOPIAN
+
+class ClassicBook(GenreBook):
+    GENRE = Genre.CLASSIC
+
+class AdventureBook(GenreBook):
+    GENRE = Genre.ADVENTURE
+
+class RomanceBook(GenreBook):
+    GENRE = Genre.ROMANCE
+
+class HistoricalFictionBook(GenreBook):
+    GENRE = Genre.HISTORICAL_FICTION
+
+class PsychologicalDramaBook(GenreBook):
+    GENRE = Genre.PSYCHOLOGICAL_DRAMA
+
+class PhilosophyBook(GenreBook):
+    GENRE = Genre.PHILOSOPHY
+
+class EpicPoetryBook(GenreBook):
+    GENRE = Genre.EPIC_POETRY
+
+class GothicFictionBook(GenreBook):
+    GENRE = Genre.GOTHIC_FICTION
+
+class GothicRomanceBook(GenreBook):
+    GENRE = Genre.GOTHIC_ROMANCE
+
+class RealismBook(GenreBook):
+    GENRE = Genre.REALISM
+
+class ModernismBook(GenreBook):
+    GENRE = Genre.MODERNISM
+
+class SatireBook(GenreBook):
+    GENRE = Genre.SATIRE
+
+class ScienceFictionBook(GenreBook):
+    GENRE = Genre.SCIENCE_FICTION
+
+class TragedyBook(GenreBook):
+    GENRE = Genre.TRAGEDY
+
+class FantasyBook(GenreBook):
+    GENRE = Genre.FANTASY
 
 class BookFactory:
+    """
+    Factory class for creating Book objects.
+    """
     @staticmethod
-    def create_book(title: str, author: str, is_loaned: bool, copies: int, genre: str, year: int) -> Book:
-        return Book(
-            title=title,
-            author=author,
-            is_loaned=is_loaned,
-            copies=copies,
-            genre=Genre.parseGenre(genre),
-            year=year,
-        )
+    def create_book(row: list) -> Book:
+        genre = Genre.parseGenre(row[4])
+        row.remove(row[4])
+        genre_class_dict = {
+            Genre.FICTION: FictionBook,
+            Genre.DYSTOPIAN: DystopianBook,
+            Genre.CLASSIC: ClassicBook,
+            Genre.ADVENTURE: AdventureBook,
+            Genre.ROMANCE: RomanceBook,
+            Genre.HISTORICAL_FICTION: HistoricalFictionBook,
+            Genre.PSYCHOLOGICAL_DRAMA: PsychologicalDramaBook,
+            Genre.PHILOSOPHY: PhilosophyBook,
+            Genre.EPIC_POETRY: EpicPoetryBook,
+            Genre.GOTHIC_FICTION: GothicFictionBook,
+            Genre.GOTHIC_ROMANCE: GothicRomanceBook,
+            Genre.REALISM: RealismBook,
+            Genre.MODERNISM: ModernismBook,
+            Genre.SATIRE: SatireBook,
+            Genre.SCIENCE_FICTION: ScienceFictionBook,
+            Genre.TRAGEDY: TragedyBook,
+            Genre.FANTASY: FantasyBook
+        }
+        return genre_class_dict[genre].parseBook(row)
 
 class BookDecorator:
     """
@@ -143,7 +217,6 @@ class popularBook(BookDecorator):
         return self.waiting_list
 
 class availableBook(BookDecorator):
-
     def is_available(self) -> bool:
         return not self.isLoaned()
 
