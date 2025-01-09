@@ -259,4 +259,4 @@ class Library(_Obserable):
         """
         View the most popular books.
         """
-        return sorted(LOANED_BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]
+        return sorted(BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]
