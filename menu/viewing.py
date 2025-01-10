@@ -22,12 +22,14 @@ class ViewPage(gui.Page):
         table= gui.Table(main.ROOT, 
                   ("Title", "Author", "Is Loaned", "Copies", "Genre", "Year"),
                   [book.toList() for book in booklist])
+        main.ROOT.grid_rowconfigure(1, weight=1)
+        main.ROOT.grid_columnconfigure(0, weight=1)
         # initialize elements
         super().__init__([
             gui.Element(tk.Label(main.ROOT, text="View Books",
                                  height=3,
                                  font=("TkDefaultFont", 10)),
                         {"row": 0, "column": 0}),
-            gui.Element(table.getFrame(),
+            gui.Element(table,
                         {"row": 1, "column": 0, "sticky": "nsew"})
         ])

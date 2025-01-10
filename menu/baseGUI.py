@@ -18,19 +18,27 @@ class Table:
         tree = ttk.Treeview(self.frame, columns=columns, show='headings')
         for col in columns:
             tree.heading(col, text=col)
-            tree.column(col, anchor='center')
+            tree.column(col, anchor='center', stretch=tk.YES)
         vsb = ttk.Scrollbar(self.frame, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=vsb.set)
         tree.grid(row=0, column=0, sticky='nsew')
         vsb.grid(row=0, column=1, sticky='ns')
         for item in content:
             tree.insert('', 'end', values=item)
+        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+        
+    def grid(self, kwargs: dict):
+        """
+        Place the table's frame in the grid.
+        """
+        self.frame.grid(kwargs)
 
-    def getFrame(self) -> tk.Frame:
+    def grid_forget(self):
         """
-        Get the frame which the table is connected to.
+        Remove the table's frame from the grid.
         """
-        return self.frame
+        self.frame.grid_forget()
 
 class Page:
     """
