@@ -10,7 +10,7 @@ class LogInPage(gui.Page):
     """
     def __init__(self):
         self.name= tk.Entry(main.ROOT, justify='left')
-        self.passw= tk.Entry(main.ROOT, justify='left')
+        self.passw= tk.Entry(main.ROOT, justify='left', show='*')
         super().__init__([
             gui.Element(tk.Label(main.ROOT, text="Welcome to the library!",
                                  height=3,
@@ -67,7 +67,7 @@ class RegisterPage(gui.Page):
     """
     def __init__(self):
         self.name= tk.Entry(main.ROOT, justify='left')
-        self.passw= tk.Entry(main.ROOT, justify='left')
+        self.passw= tk.Entry(main.ROOT, justify='left', show='*')
         super().__init__([
             gui.Element(tk.Label(main.ROOT, height=3, text="Register an account.", font=("TkDefaultFont", 10)),
                         {"row": 0, "column": 0, "padx": 2}),

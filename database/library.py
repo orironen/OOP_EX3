@@ -336,11 +336,15 @@ class Library(_Obserable):
         Searches the booklist based on the query and the value key.
         """
         if searchby == "Title":
+            self.__log__(f'Search book "{query}" by name completed successfully')
             comp= strats.SearchByTitle(BOOKS)
         elif searchby == "Author":
+            self.__log__(f'Search book "{query}" by author completed successfully')
             comp= strats.SearchByAuthor(BOOKS)
         elif searchby == "Genre":
+            self.__log__(f'Search book "{query}" by category completed successfully')
             comp= strats.SearchByGenre(BOOKS)
         elif searchby == "Year":
+            self.__log__(f'Search book "{query}" by year completed successfully')
             comp= strats.SearchByYear(BOOKS)
         return comp.search(query)
