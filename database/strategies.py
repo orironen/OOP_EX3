@@ -57,28 +57,28 @@ class SearchByTitle(_SearchStrategy):
     Searches the book list by the book title.
     """
     def search(self, query: str) -> list[Book]:
-        return super().search(query, self.books, 'title')
+        return super().search(query, 'title')
 
 class SearchByAuthor(_SearchStrategy):
     """
     Searches the book list by the author name.
     """
     def search(self, query: str) -> list[Book]:
-        return super().search(query, self.books, 'author')
+        return super().search(query, 'author')
     
 class SearchByGenre(_SearchStrategy):
     """
     Searches the book list by the book genre.
     """
     def search(self, query: str) -> list[Book]:
-        return super().search(query, self.books, 'genre')
+        return super().search(query, 'genre')
 
 class SearchByYear(_SearchStrategy):
     """
     Searches the book list by the release year.
     """
     def search(self, query: str) -> list[Book]:
-        return super().search(query, self.books, 'year')
+        return super().search(query, 'year')
 
 class BooklistDecorator(_SearchInterface, _ViewStrategy):
     """

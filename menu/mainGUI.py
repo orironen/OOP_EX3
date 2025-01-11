@@ -31,7 +31,8 @@ class MainPage(gui.Page):
                                   width=20),
                         {"row": 1, "column": 2}),
             gui.Element(tk.Button(ROOT, text="Search Books",
-                                  width=20),
+                                  width=20,
+                                  command=partial(WIN.switchToPage, "search")),
                         {"row": 2, "column": 0}),
             gui.Element(tk.Button(ROOT, text="Lend Book",
                                   width=20),
@@ -71,6 +72,7 @@ def start_gui(library: Library):
         "log in": sign.LogInPage(),
         "register": sign.RegisterPage(),
         "main": MainPage(),
-        "view": view.ViewPage()
+        "view": view.ViewPage(),
+        "search": view.SearchEntryPage()
     })
     WIN.switchToPage("log in")

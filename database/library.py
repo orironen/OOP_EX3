@@ -295,36 +295,25 @@ class Library(_Obserable):
         except OSError:
             self.__log__('book borrowed fail')
 
-    def viewAll(self):
+    def viewBooklist(self, category: str, books: list[Book]= None):
         """
-        View all books in the library.
+        Returns a list of Book objects in the library with various effects.
         """
-        self.__log__('Displayed all books successfully')
-        bookview= strats.BooklistDecorator(strats.ViewBooklist(BOOKS))
-        return bookview.view()
-    
-    def viewAvailable(self):
-        """
-        View all books that are available.
-        """
-        self.__log__('Displayed available books successfully')
-        bookview= strats.AvailableDecorator(strats.ViewBooklist(BOOKS))
-        return bookview.view()
-    
-    def viewLoaned(self):
-        """
-        View all books that have been loaned.
-        """
-        self.__log__('Displayed borrowed books successfully')
-        bookview= strats.LoanedDecorator(strats.ViewBooklist(BOOKS))
-        return bookview.view()
-    
-    def viewPopular(self):
-        """
-        View the most popular books.
-        """
-        self.__log__('Displayed popular books successfully')
-        bookview= strats.PopularDecorator(strats.ViewBooklist(BOOKS))
+        if not books:
+            books= BOOKS
+        
+        if category == "all":
+            bookview= strats.BooklistDecorator(strats.ViewBooklist(books))
+            self.__log__('Displayed all books successfully')
+        elif category == "available":
+            bookview= strats.AvailableDecorator(strats.ViewBooklist(books))
+            self.__log__('Displayed available books successfully')
+        elif category == "loaned":
+            bookview= strats.LoanedDecorator(strats.ViewBooklist(books))
+            self.__log__('Displayed borrowed books successfully')
+        elif category == "popular":
+            bookview= strats.PopularDecorator(strats.ViewBooklist(books))
+            self.__log__('Displayed popular books successfully')
         return bookview.view()
     
     def sortByTitle(self, books: list[Book]):
@@ -341,3 +330,17 @@ class Library(_Obserable):
         self.__log__('Displayed book by category successfully')
         bookview= strats.GenreDecorator(strats.ViewBooklist(books))
         return bookview.view()
+    
+    def searchBooklist(self, query: str, searchby: str):
+        """
+        Searches the booklist based on the query and the value key.
+        """
+        if searchby == "Title":
+            comp= strats.SearchByTitle(BOOKS)
+        elif searchby == "Author":
+            comp= strats.SearchByAuthor(BOOKS)
+        elif searchby == "Genre":
+            comp= strats.SearchByGenre(BOOKS)
+        elif searchby == "Year":
+            comp= strats.SearchByYear(BOOKS)
+        return comp.search(query)
