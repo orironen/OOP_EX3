@@ -1,3 +1,4 @@
+from functools import partial
 import tkinter as tk
 from tkinter import ttk
 
@@ -15,18 +16,20 @@ class Table:
     """
     def __init__(self, root: tk.Tk, columns: tuple, content: list[list]):
         self.frame = ttk.Frame(root)
-        tree = ttk.Treeview(self.frame, columns=columns, show='headings')
+        tree_frame = ttk.Frame(self.frame)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+        tree = ttk.Treeview(tree_frame, columns=columns, show='headings')
         for col in columns:
             tree.heading(col, text=col)
             tree.column(col, anchor='center', stretch=tk.YES)
-        vsb = ttk.Scrollbar(self.frame, orient="vertical", command=tree.yview)
+        vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=vsb.set)
-        tree.grid(row=0, column=0, sticky='nsew')
-        vsb.grid(row=0, column=1, sticky='ns')
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        vsb.pack(side=tk.RIGHT, fill=tk.Y)
         for item in content:
             tree.insert('', 'end', values=item)
-        self.frame.grid_rowconfigure(0, weight=1)
-        self.frame.grid_columnconfigure(0, weight=1)
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        vsb.pack(side=tk.RIGHT, fill=tk.Y)
         
     def grid(self, kwargs: dict):
         """
@@ -75,7 +78,7 @@ class MainWindow:
         """
         self.pages= pagemap
 
-    def switchToPage(self, newpage: str):
+    def switchToPage(self, newpagekey: str= None, newpage: Page= None):
         """
         Switches to the page via the inputted key.
         """
@@ -83,7 +86,14 @@ class MainWindow:
         if self.current:
             self.current.hideElements()
         # set new page as current
-        self.current= self.pages[newpage]
+        if newpagekey:
+            self.current= self.pages[newpagekey]
+        elif newpage:
+            if isinstance(newpage, partial):
+                newpage = Page(newpage.elements)
+            self.current= newpage
+        else:
+            raise ValueError
         self.current.setElements()
         # apply column weights
         for i in range(self.root.grid_size()[0]):

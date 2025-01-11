@@ -71,6 +71,6 @@ def start_gui(library: Library):
         "log in": sign.LogInPage(),
         "register": sign.RegisterPage(),
         "main": MainPage(),
-        "view": view.ViewPage("all")
+        "view": view.ViewPage()
     })
     WIN.switchToPage("log in")

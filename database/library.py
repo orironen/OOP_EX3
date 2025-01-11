@@ -14,7 +14,19 @@ AVAILABLE_BOOKS: list[Book] = []
 LOANED_BOOKS: list[Book] = []
 USERS: list[User] = []
 
-def _csvAsMatrix(file: str) -> list:
+def _csvToBook(file: str) -> list[Book]:
+    """
+    Returns a list of Book objects from the csv.
+    """
+    output: list[Book]= []
+    with open(file, 'r', newline='') as bookfile:
+        booklist = csv.reader(bookfile, delimiter=',')
+        for i, row in enumerate(booklist):
+            if i != 0:
+                output.append(BookFactory.create_book(row))
+    return output
+
+def _csvAsMatrix(file: str) -> list[list[str]]:
     """
     Returns a matrix representing the rows of the csv file.
     """
@@ -45,12 +57,9 @@ class Library(_Obserable):
     Represents a library database. Contains functions to manage books and users.
     """
     def __init__(self):
+        global BOOKS, AVAILABLE_BOOKS, LOANED_BOOKS, USERS
         # get books from csv
-        with open('books.csv', 'r', newline='') as bookfile:
-            booklist = csv.reader(bookfile, delimiter=',')
-            for i, row in enumerate(booklist):
-                if i != 0:
-                    BOOKS.append(BookFactory.create_book(row))
+        BOOKS= _csvToBook('books.csv')
         # copy into available books
         if not _ifFileExists('available_books.csv'):
             AVAILABLE_BOOKS.extend(book for book in BOOKS if not book.loaned)
@@ -58,12 +67,16 @@ class Library(_Obserable):
                 writer= csv.writer(bookfile, delimiter=',')
                 writer.writerow(["title","author","is_loaned","copies","genre","year"])
                 writer.writerows(book.toList() for book in AVAILABLE_BOOKS)
+        else:
+            AVAILABLE_BOOKS= _csvToBook('available_books.csv')
         if not _ifFileExists('loaned_books.csv'):
             LOANED_BOOKS.extend(book for book in BOOKS if book.loaned)
             with open('loaned_books.csv', 'x', newline='') as bookfile:
                 writer= csv.writer(bookfile, delimiter=',')
                 writer.writerow(["title","author","is_loaned","copies","genre","year"])
                 writer.writerows(book.toList() for book in LOANED_BOOKS)
+        else:
+            LOANED_BOOKS= _csvToBook('loaned_books.csv')
         # get user data
         if not _ifFileExists('users.csv'):
             with open('users.csv', 'x', newline='') as userfile:
@@ -287,28 +300,21 @@ class Library(_Obserable):
         View all books in the library.
         """
         self.__log__('Displayed all books successfully')
-        return sorted(BOOKS, key= lambda x: x.title)
-    
-    def viewByGenre(self):
-        """
-        View all books in the library by genre.
-        """
-        self.__log__('Displayed book by category successfully')
-        return sorted(BOOKS, key= lambda x: str(x.genre))
+        return BOOKS
     
     def viewAvailable(self):
         """
         View all books that are available.
         """
         self.__log__('Displayed available books successfully')
-        return sorted(AVAILABLE_BOOKS)
+        return AVAILABLE_BOOKS
     
     def viewLoaned(self):
         """
         View all books that have been loaned.
         """
         self.__log__('Displayed borrowed books successfully')
-        return sorted(LOANED_BOOKS)
+        return LOANED_BOOKS
     
     def viewPopular(self):
         """
@@ -316,3 +322,16 @@ class Library(_Obserable):
         """
         self.__log__('Displayed popular books successfully')
         return sorted(BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]
+    
+    def sortByTitle(self, books: list[Book]):
+        """
+        View books by title.
+        """
+        return sorted(books, key= lambda x: x.title)
+    
+    def sortByGenre(self, books: list[Book]):
+        """
+        View books by genre.
+        """
+        self.__log__('Displayed book by category successfully')
+        return sorted(books, key= lambda x: str(x.genre))
