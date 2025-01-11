@@ -6,7 +6,7 @@ import hashlib
 from abc import ABC, abstractmethod
 from Users.user import User
 from database.book import Book, BookFactory
-import database.search as search
+import database.strategies as strats
 from database.iterators import UserIterator
 
 BOOKS: list[Book] = []
@@ -227,11 +227,11 @@ class Library(_Obserable):
             # find book in available
             book_to_borrow: Book
             try:
-                booksearch= search.AvailableDecorator(search.SearchByTitle())
+                booksearch= strats.AvailableDecorator(strats.SearchByTitle())
                 book_to_borrow= deepcopy(booksearch.search(bookname)[0])
             except IndexError:
                 # add to waiting list
-                booksearch= search.SearchByTitle()
+                booksearch= strats.SearchByTitle()
                 book_to_borrow= deepcopy(booksearch.execute_search(bookname)[0])
                 book_to_borrow.addToWaitingList(loaner)
                 self.notify(f"{loaner} has been added to the waiting list for '{bookname}'.")
@@ -244,7 +244,7 @@ class Library(_Obserable):
             self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
             # find book in loaned
             try:
-                booksearch= search.LoanedDecorator(search.SearchByTitle())
+                booksearch= strats.LoanedDecorator(strats.SearchByTitle())
                 loaned_book= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
                 oldbook= deepcopy(loaned_book)
@@ -266,7 +266,7 @@ class Library(_Obserable):
         try:
             book_to_return: Book
             # find book in available
-            booksearch= search.AvailableDecorator(search.SearchByTitle())
+            booksearch= strats.AvailableDecorator(strats.SearchByTitle())
             book_to_return= deepcopy(booksearch.search(bookname)[0])
             oldbook= deepcopy(book_to_return)
             # update book
@@ -276,7 +276,7 @@ class Library(_Obserable):
             self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
             # find book in loaned
             try:
-                booksearch= search.LoanedDecorator(search.SearchByTitle())
+                booksearch= strats.LoanedDecorator(strats.SearchByTitle())
                 book_to_return= deepcopy(booksearch.search(bookname)[0])
                 # update loaned books
                 oldbook= deepcopy(book_to_return)
@@ -300,38 +300,44 @@ class Library(_Obserable):
         View all books in the library.
         """
         self.__log__('Displayed all books successfully')
-        return BOOKS
+        bookview= strats.BooklistDecorator(strats.ViewBooklist(BOOKS))
+        return bookview.view()
     
     def viewAvailable(self):
         """
         View all books that are available.
         """
         self.__log__('Displayed available books successfully')
-        return AVAILABLE_BOOKS
+        bookview= strats.AvailableDecorator(strats.ViewBooklist(BOOKS))
+        return bookview.view()
     
     def viewLoaned(self):
         """
         View all books that have been loaned.
         """
         self.__log__('Displayed borrowed books successfully')
-        return LOANED_BOOKS
+        bookview= strats.LoanedDecorator(strats.ViewBooklist(BOOKS))
+        return bookview.view()
     
     def viewPopular(self):
         """
         View the most popular books.
         """
         self.__log__('Displayed popular books successfully')
-        return sorted(BOOKS, key=lambda x: x.borrowed, reverse=True)[:10]
+        bookview= strats.PopularDecorator(strats.ViewBooklist(BOOKS))
+        return bookview.view()
     
     def sortByTitle(self, books: list[Book]):
         """
         View books by title.
         """
-        return sorted(books, key= lambda x: x.title)
+        bookview= strats.AlphabeticalDecorator(strats.ViewBooklist(books))
+        return bookview.view()
     
     def sortByGenre(self, books: list[Book]):
         """
         View books by genre.
         """
         self.__log__('Displayed book by category successfully')
-        return sorted(books, key= lambda x: str(x.genre))
+        bookview= strats.GenreDecorator(strats.ViewBooklist(books))
+        return bookview.view()
