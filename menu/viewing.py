@@ -36,7 +36,7 @@ class ViewPage(gui.Page):
         ])
 
     def refresh(self):
-        self.booklist= main.LIB.viewBooklist(self.view, self.booklist, False)
+        self.booklist= main.LIB.viewBooklist(self.view, log=False)
         if self.sort == "abc":
             self.booklist= main.LIB.sortByTitle(self.booklist)
         elif self.sort == "genre":
