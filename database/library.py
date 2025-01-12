@@ -186,7 +186,10 @@ class Library(_Obserable):
         specified CSV file.
         """
         BOOKS[BOOKS.index(oldBook)]= newBook
-        AVAILABLE_BOOKS[AVAILABLE_BOOKS.index(oldBook)]= newBook
+        if oldBook in AVAILABLE_BOOKS:
+            AVAILABLE_BOOKS[AVAILABLE_BOOKS.index(oldBook)]= newBook
+        if oldBook in LOANED_BOOKS:
+            LOANED_BOOKS[LOANED_BOOKS.index(oldBook)]= newBook
         # read csv
         bookfile= _csvAsMatrix(csvfile)
         # update relevant row 
@@ -247,8 +250,6 @@ class Library(_Obserable):
         mentioned user.
         """
         try:
-            # no destructive edits
-            book_to_borrow= deepcopy(book_to_borrow)
             # if book isn't available
             if book_to_borrow not in AVAILABLE_BOOKS:
                 # add to waiting list
@@ -257,19 +258,24 @@ class Library(_Obserable):
                     self.notify(f"{loaner} has been added to the waiting list for '{book_to_borrow.title}'.")
                     raise OSError("waitlist")
                 raise ValueError("Book doesn't exist.")
+            else:
+                book_to_borrow= deepcopy([book for book in AVAILABLE_BOOKS if book == book_to_borrow][0])
             oldbook= deepcopy(book_to_borrow)
             # update book
             book_to_borrow.copies-=1
-            book_to_borrow.loaned= True
             # update available books
             index= AVAILABLE_BOOKS.index(book_to_borrow)
             AVAILABLE_BOOKS.remove(book_to_borrow)
             if book_to_borrow.copies > 0:
                 AVAILABLE_BOOKS.insert(index, book_to_borrow)
-            self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
+                self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
+            else:
+                self.__removeBookFromCSV(book_to_borrow, 'available_books.csv')
             # find book in loaned
             if book_to_borrow in LOANED_BOOKS:
                 loaned_book= deepcopy([book for book in LOANED_BOOKS if book == book_to_borrow][0])
+                if book_to_borrow.copies == 0:
+                    loaned_book.loaned= True
                 # update loaned books
                 oldbook= deepcopy(loaned_book)
                 loaned_book.copies+=1
@@ -295,7 +301,7 @@ class Library(_Obserable):
         mentioned user.
         """
         try:
-            book_to_return= deepcopy(book_to_return)
+            book_to_return= deepcopy([book for book in LOANED_BOOKS if book == book_to_return][0])
             # find book in available
             oldbook= deepcopy(book_to_return)
             # update book
@@ -306,7 +312,9 @@ class Library(_Obserable):
             LOANED_BOOKS.remove(book_to_return)
             if book_to_return.copies > 0:
                 LOANED_BOOKS.insert(index, book_to_return)
-            self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
+                self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
+            else:
+                self.__removeBookFromCSV(book_to_return, 'loaned_books.csv')
             # find book in loaned
             if book_to_return in AVAILABLE_BOOKS:
                 # update available books

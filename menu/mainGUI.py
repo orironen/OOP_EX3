@@ -42,7 +42,8 @@ class MainPage(gui.Page):
                                   command=partial(WIN.switchToPage, "borrow")),
                         {"row": 2, "column": 1}),
             gui.Element(tk.Button(ROOT, text="Return Book",
-                                  width=20),
+                                  width=20,
+                                  command=partial(WIN.switchToPage, "return")),
                         {"row": 2, "column": 2}),
             gui.Element(tk.Button(ROOT, text="Log Out",
                                 activeforeground="darkblue",
@@ -80,6 +81,7 @@ def start_gui(library: Library):
         "search": view.SearchEntryPage(),
         "add": mang.AddPage(),
         "remove": mang.RemovePage(),
-        "borrow": mang.BorrowPage()
+        "borrow": mang.BorrowPage(),
+        "return": mang.ReturnPage()
     })
     WIN.switchToPage("log in")

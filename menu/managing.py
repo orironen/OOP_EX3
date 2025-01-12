@@ -168,7 +168,7 @@ class BorrowPage(ChoosePage):
     def command(self):
         try:
             book= self.getSelectedBook()
-            main.LIB.borrowBook(self.loaner, book)
+            main.LIB.borrowBook(self.loaner.get(), book)
             main.WIN.refresh()
             msgbox.showinfo(title="Borrow Book", message=f"{self.selected.get()} borrowed successfully.")
         except Exception as e:
@@ -176,4 +176,19 @@ class BorrowPage(ChoosePage):
                 msgbox.showerror(title="Borrow Book", message=f"{self.selected.get()} is not available. Added to waitlist.")
             else:
                 msgbox.showerror(title="Borrow Book", message=f"Could not borrow {self.selected.get()}. {e}")
-                raise e
+            
+class ReturnPage(ChoosePage):
+    """
+    The page for returning books.
+    """
+    def __init__(self):
+        super().__init__("Return Books", '', "Return", loaned=True, loaner=True)
+
+    def command(self):
+        try:
+            book= self.getSelectedBook()
+            main.LIB.returnBook(self.loaner.get(), book)
+            main.WIN.refresh()
+            msgbox.showinfo(title="Return Book", message=f"{self.selected.get()} returned successfully.")
+        except Exception as e:
+            msgbox.showerror(title="Return Book", message=f"Could not return {self.selected.get()}. {e}")
