@@ -264,7 +264,8 @@ class Library(_Obserable):
             # update available books
             index= AVAILABLE_BOOKS.index(book_to_borrow)
             AVAILABLE_BOOKS.remove(book_to_borrow)
-            AVAILABLE_BOOKS.insert(index, book_to_borrow)
+            if book_to_borrow.copies > 0:
+                AVAILABLE_BOOKS.insert(index, book_to_borrow)
             self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
             # find book in loaned
             if book_to_borrow in LOANED_BOOKS:
@@ -294,12 +295,17 @@ class Library(_Obserable):
         mentioned user.
         """
         try:
+            book_to_return= deepcopy(book_to_return)
             # find book in available
             oldbook= deepcopy(book_to_return)
             # update book
             book_to_return.copies-=1
             book_to_return.loaned= False
             # update loaned books
+            index= LOANED_BOOKS.index(book_to_return)
+            LOANED_BOOKS.remove(book_to_return)
+            if book_to_return.copies > 0:
+                LOANED_BOOKS.insert(index, book_to_return)
             self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
             # find book in loaned
             if book_to_return in AVAILABLE_BOOKS:
@@ -309,11 +315,12 @@ class Library(_Obserable):
                 returned_book.copies+=1
                 self.updateBookDetails(oldbook, returned_book, 'available_books.csv')
             else:
-                book_to_return.copies= 1
+                returned_book= deepcopy(book_to_return)
+                returned_book.copies= 1
+                AVAILABLE_BOOKS.append(returned_book)
                 # notify to waiting list
-                self.notify(message= f"The book {book_to_return.title} has returned.")
-                self.__addBookToCSV(book_to_return, 'available_books.csv')
-            book_to_return.borrowed-=1
+                self.notify(message= f"The book {returned_book.title} has returned.")
+                self.__addBookToCSV(returned_book, 'available_books.csv')
             self.__log__('book returned successfully')
             self.notify(message=f"The book '{book_to_return.title}' was returned by {loaner}.")
         except Exception as e:
@@ -337,7 +344,7 @@ class Library(_Obserable):
             bookview= strats.ViewBooklist([book for book in books if book in LOANED_BOOKS])
             self.__log__('Displayed borrowed books successfully')
         elif category == "popular":
-            bookview= strats.PopularDecorator(strats.ViewBooklist(books))
+            bookview= strats.PopularDecorator(strats.ViewBooklist(AVAILABLE_BOOKS))
             self.__log__('Displayed popular books successfully')
         return bookview.view()
     
