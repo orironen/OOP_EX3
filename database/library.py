@@ -119,17 +119,34 @@ class Library(_Obserable):
         """
         Adds a book to the library.
         """
-        BOOKS.append(book)
-        AVAILABLE_BOOKS.append(book)
         try:
-            # add new book to csv
-            self.__addBookToCSV(book, 'books.csv')
-            self.__addBookToCSV(book, 'available_books.csv')
-            self.__log__('book added successfully')
-            self.notify(f'The book {book.title} has been added.')
+            if book in BOOKS:
+                # get book in database
+                i1= BOOKS.index(book)
+                i2= AVAILABLE_BOOKS.index(book)
+                book= BOOKS[i1]
+                backup= deepcopy(book)
+                # add 1 copy
+                book.copies+=1
+                # replace book
+                BOOKS.remove(backup)
+                AVAILABLE_BOOKS.remove(backup)
+                BOOKS.insert(i1, book)
+                AVAILABLE_BOOKS.insert(i2, book)
+                # update book
+                self.updateBookDetails(backup, book, 'books.csv')
+                self.updateBookDetails(backup, book, 'available_books.csv')
+            else:
+                BOOKS.append(book)
+                AVAILABLE_BOOKS.append(book)
+                # add new book to csv
+                self.__addBookToCSV(book, 'books.csv')
+                self.__addBookToCSV(book, 'available_books.csv')
         except OSError:
             self.__log__('book added fail')
             raise OSError
+        self.__log__('book added successfully')
+        self.notify(f'The book {book.title} has been added.')
 
     def __removeBookFromCSV(self, book: Book, csvfile: str):
         """
