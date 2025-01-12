@@ -23,7 +23,7 @@ def _csvToBook(file: str) -> list[Book]:
         booklist = csv.reader(bookfile, delimiter=',')
         for i, row in enumerate(booklist):
             if i != 0:
-                output.append(BookFactory.create_book(row))
+                output.append(BookFactory.create_book_from_row(row))
     return output
 
 def _csvAsMatrix(file: str) -> list[list[str]]:
@@ -129,6 +129,7 @@ class Library(_Obserable):
             self.notify(f'The book {book.title} has been added.')
         except OSError:
             self.__log__('book added fail')
+            raise OSError
 
     def __removeBookFromCSV(self, book: Book, csvfile: str):
         """
@@ -303,13 +304,13 @@ class Library(_Obserable):
             books= BOOKS
         
         if category == "all":
-            bookview= strats.BooklistDecorator(strats.ViewBooklist(books))
+            bookview= strats.ViewBooklist(books)
             self.__log__('Displayed all books successfully')
         elif category == "available":
-            bookview= strats.BooklistDecorator(strats.ViewBooklist([book for book in books if book in AVAILABLE_BOOKS]))
+            bookview= strats.ViewBooklist([book for book in books if book in AVAILABLE_BOOKS])
             self.__log__('Displayed available books successfully')
         elif category == "loaned":
-            bookview= strats.BooklistDecorator(strats.ViewBooklist([book for book in books if book in LOANED_BOOKS]))
+            bookview= strats.ViewBooklist([book for book in books if book in LOANED_BOOKS])
             self.__log__('Displayed borrowed books successfully')
         elif category == "popular":
             bookview= strats.PopularDecorator(strats.ViewBooklist(books))

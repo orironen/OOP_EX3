@@ -174,9 +174,10 @@ class BookFactory:
     Factory class for creating Book objects.
     """
     @staticmethod
-    def create_book(row: list) -> Book:
-        genre = Genre.parseGenre(row[4])
-        row.remove(row[4])
+    def create_book(title: str, author: str, is_loaned: str, copies: str, genre: Genre, year: str) -> Book:
+        """
+        Internal method for book creation.
+        """
         genre_class_dict = {
             Genre.FICTION: FictionBook,
             Genre.DYSTOPIAN: DystopianBook,
@@ -196,4 +197,20 @@ class BookFactory:
             Genre.TRAGEDY: TragedyBook,
             Genre.FANTASY: FantasyBook
         }
-        return genre_class_dict[genre].parseBook(row)
+        return genre_class_dict[genre].parseBook([title, author, is_loaned, copies, year])
+
+    @classmethod
+    def create_book_from_input(cls, title: str, author: str, genre: str, year: str, is_loaned: str= "No", copies: str= 1) -> Book:
+        """
+        Create book from separate inputs.
+        """
+        genre = Genre.parseGenre(genre)
+        return cls.create_book(title, author, is_loaned, copies, genre, year)
+
+    @classmethod
+    def create_book_from_row(cls, row: list) -> Book:
+        """
+        Create book from existing row.
+        """
+        genre = Genre.parseGenre(row[4])
+        return cls.create_book(row[0], row[1], row[2], row[3], genre, row[5])
