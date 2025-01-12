@@ -74,9 +74,64 @@ class AddPage(gui.Page):
                         ])
         
     def addBook(self):
+        """
+        Use library method to add a book with the data provided.
+        """
         try:
             main.LIB.addBook(BookFactory.create_book_from_input(self.title.get(), self.author.get(), self.genre.get(), self.year.get()))
-            msgbox.showinfo(title="Add Book", message=f"{self.title.get()} added successfully.")
+            main.WIN.refresh()
+            msgbox.showinfo(title="Add Book", message=f"{self.title.get()} added successfully. Book may not appear to be added initially.")
         except OSError:
-            msgbox.showerror(title="Add Book", message=f"Could not add {self.title}.")
-            
+            msgbox.showerror(title="Add Book", message=f"Could not add {self.title.get()}.")
+
+class ChoosePage(gui.Page):
+    """
+    A page where you select a book.
+    """
+    def __init__(self, title: str, desc: str, butt: str, loaned: bool= False):
+        if loaned:
+            self.booklist= main.LIB.viewBooklist("loaned")
+        else:
+            self.booklist= main.LIB.viewBooklist("available")
+        self.selected= tk.StringVar()
+        self.selected.set("Choose Book")
+        super().__init__([
+            gui.Element(tk.Label(main.ROOT, text=title,
+                                height=3,
+                                font=("TkDefaultFont", 10)),
+                        {"row": 0, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text=desc),
+                        {"row": 1, "column": 0}),
+            gui.Element(tk.OptionMenu(main.ROOT, self.selected,
+                                      *[book.title for book in self.booklist]),
+                        {"row": 2, "column": 0}),
+            gui.Element(tk.Button(main.ROOT, text=butt,
+                                  command=partial(self.command)),
+                        {"row": 3, "column": 0}),
+            gui.Element(tk.Button(main.ROOT, text= "Back",
+                                  command=partial(main.WIN.switchToPage, "main")),
+                        {"row": 4, "column": 0})
+        ])
+    
+    def command(self):
+        """
+        Execute the given page's command.
+        """
+        pass
+
+class RemovePage(ChoosePage):
+    """
+    The page for removing books.
+    """
+    def __init__(self):
+        desc= """You can only remove books from the available booklist."""
+        super().__init__("Remove Books", desc, "Remove")
+
+    def command(self):
+        try:
+            book= [book for book in self.booklist if book.title == self.selected.get()][0]
+            main.LIB.removeBook(book)
+            main.WIN.refresh()
+            msgbox.showinfo(title="Remove Book", message=f"{book.title} removed successfully. Book may not appear to be removed initially.")
+        except:
+            msgbox.showerror(title="Remove Book", message=f"Could not remove {book.title}.")

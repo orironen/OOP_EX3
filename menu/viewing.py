@@ -47,10 +47,10 @@ class ViewPage(gui.Page):
         # view menu
         viewmenu= tk.Menu(menu)
         menu.add_cascade(label='View', menu=viewmenu)
-        viewmenu.add_command(label='All', command=partial(self.__class__.changeView, "all", self.sort))
-        viewmenu.add_command(label='Available', command=partial(self.__class__.changeView, "available", self.sort))
-        viewmenu.add_command(label='Loaned', command=partial(self.__class__.changeView, "loaned", self.sort))
-        viewmenu.add_command(label='Popular', command=partial(self.__class__.changeView, "popular", self.sort))
+        viewmenu.add_command(label='All', command=partial(self.changeView, "all", self.sort))
+        viewmenu.add_command(label='Available', command=partial(self.changeView, "available", self.sort))
+        viewmenu.add_command(label='Loaned', command=partial(self.changeView, "loaned", self.sort))
+        viewmenu.add_command(label='Popular', command=partial(self.changeView, "popular", self.sort))
         # sort menu
         sortmenu= tk.Menu(menu)
         menu.add_cascade(label='Sort by...', menu=sortmenu)

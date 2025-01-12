@@ -2,7 +2,7 @@ from functools import partial
 from database.library import Library
 import tkinter as tk
 import tkinter.messagebox as msgbox
-import menu.addremove as add
+import menu.managing as mang
 import menu.viewing as view
 import menu.baseGUI as gui
 import menu.signing as sign
@@ -30,7 +30,8 @@ class MainPage(gui.Page):
                                   command=partial(WIN.switchToPage, "add")),
                         {"row": 1, "column": 1}),
             gui.Element(tk.Button(ROOT, text="Remove Book",
-                                  width=20),
+                                  width=20,
+                                  command=partial(WIN.switchToPage, "remove")),
                         {"row": 1, "column": 2}),
             gui.Element(tk.Button(ROOT, text="Search Books",
                                   width=20,
@@ -76,6 +77,7 @@ def start_gui(library: Library):
         "main": MainPage(),
         "view": view.ViewPage(),
         "search": view.SearchEntryPage(),
-        "add": add.AddPage()
+        "add": mang.AddPage(),
+        "remove": mang.RemovePage()
     })
     WIN.switchToPage("log in")

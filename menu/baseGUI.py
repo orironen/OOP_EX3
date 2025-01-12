@@ -77,6 +77,12 @@ class MainWindow:
         """
         self.pages= pagemap
 
+    def refresh(self):
+        """
+        Refresh the booklist.
+        """
+        self.pages["view"].__init__()
+
     def switchToPage(self, newpagekey: str= None, newpage: Page= None):
         """
         Switches to the page via the inputted key.

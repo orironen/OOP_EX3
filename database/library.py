@@ -120,6 +120,7 @@ class Library(_Obserable):
         Adds a book to the library.
         """
         try:
+            # if book already exists
             if book in BOOKS:
                 # get book in database
                 i1= BOOKS.index(book)
@@ -155,7 +156,7 @@ class Library(_Obserable):
         # read csv
         bookfile= _csvAsMatrix(csvfile)
         # remove relevant row
-        rows= [row for row in bookfile if row[0] == book.title]
+        rows= [row for row in bookfile if row[0] != book.title]
         # write to csv
         with open(csvfile, 'w', newline='') as books:
             bookwriter= csv.writer(books)
@@ -172,7 +173,7 @@ class Library(_Obserable):
             self.__removeBookFromCSV(book, 'available_books.csv')
             self.__log__('book removed successfully')
             self.notify(f'The book {book.title} has been removed.')
-        except OSError:
+        except:
             self.__log__('book removed fail')
 
     def updateBookDetails(self, oldBook: Book, newBook: Book, csvfile: str):
