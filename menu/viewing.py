@@ -1,5 +1,6 @@
 from functools import partial
 import tkinter as tk
+import tkinter.messagebox as msgbox
 import menu.baseGUI as gui
 import menu.mainGUI as main
 
@@ -96,5 +97,9 @@ class SearchEntryPage(gui.Page):
         Search for the query inputted in the page, based on the factors given
         to it.
         """
-        booklist= main.LIB.searchBooklist(self.query.get(), self.searchby.get())
-        main.WIN.switchToPage(newpage= ViewPage(booklist=booklist))
+        try:
+            booklist= main.LIB.searchBooklist(self.query.get(), self.searchby.get())
+            msgbox.showinfo(title="Search Books", message=f"Found {len(booklist)} results for {self.query.get}.")
+            main.WIN.switchToPage(newpage= ViewPage(booklist=booklist))
+        except:
+            msgbox.showerror(title="Search Books", message=f"Could not find {self.query.get()}.")
