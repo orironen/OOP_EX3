@@ -43,7 +43,7 @@ class _SearchStrategy(_SearchInterface):
             attribute = getattr(book, field)
             if query.lower() in str(attribute).lower():
                 responses.append(book)
-        if len(responses) == 0:
+        if not responses:
             raise ValueError("No books found.")
         return responses
 

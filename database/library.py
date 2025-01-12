@@ -374,31 +374,17 @@ class Library(_Obserable):
         Searches the booklist based on the query and the value key.
         """
         if searchby == "Title":
-            try:
-                comp= strats.SearchByTitle(BOOKS)
-                self.__log__(f'Search book "{query}" by name completed successfully')
-            except:
-                self.__log__(f'Search book "{query}" by name fail')
-                raise ValueError
+            comp= strats.SearchByTitle(BOOKS)
         elif searchby == "Author":
-            try:
-                comp= strats.SearchByAuthor(BOOKS)
-                self.__log__(f'Search book "{query}" by author completed successfully')
-            except:
-                self.__log__(f'Search book "{query}" by author fail')
-                raise ValueError
+            comp= strats.SearchByAuthor(BOOKS)
         elif searchby == "Genre":
-            try:
-                comp= strats.SearchByGenre(BOOKS)
-                self.__log__(f'Search book "{query}" by category completed successfully')
-            except:
-                self.__log__(f'Search book "{query}" by category fail')
-                raise ValueError
+            comp= strats.SearchByGenre(BOOKS)
         elif searchby == "Year":
-            try:
-                comp= strats.SearchByYear(BOOKS)
-                self.__log__(f'Search book "{query}" by year completed successfully')
-            except:
-                self.__log__(f'Search book "{query}" by year fail')
-                raise ValueError
-        return comp.search(query)
+            comp= strats.SearchByYear(BOOKS)
+        try:
+            responses= comp.search(query)
+            self.__log__(f'Search book "{query}" by {searchby.lower()} completed successfully')
+            return responses
+        except:
+            self.__log__(f'Search book "{query}" by {searchby.lower()} fail')
+            raise ValueError
