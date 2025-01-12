@@ -93,28 +93,6 @@ class BooklistDecorator(_SearchInterface, _ViewStrategy):
     def search(self, query: str) -> list[Book]:
         return self._comp.search(query, self._comp.books)
 
-class AvailableDecorator(BooklistDecorator):
-    """
-    Views only available books.
-    """
-    def view(self):
-        return [book for book in self._comp.books if not book.loaned]
-    
-    def search(self, query: str) -> list[Book]:
-        sorted_books = [book for book in self._comp.books if not book.loaned]
-        return self._comp.search(query, sorted_books)
-
-class LoanedDecorator(BooklistDecorator):
-    """
-    Views only loaned books.
-    """
-    def view(self):
-        return [book for book in self._comp.books if book.loaned]
-    
-    def search(self, query: str) -> list[Book]:
-        sorted_books = [book for book in self._comp.books if book.loaned]
-        return self._comp.search(query, sorted_books)
-
 class PopularDecorator(BooklistDecorator):
     """
     Sorts list based on book popularity.
