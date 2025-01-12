@@ -10,8 +10,8 @@ class AddPage(gui.Page):
     The page for adding new books.
     """
     def __init__(self):
-        self.title= tk.Entry(main.ROOT)
-        self.author= tk.Entry(main.ROOT)
+        self.title= tk.Entry(main.ROOT, justify="left")
+        self.author= tk.Entry(main.ROOT, justify="left")
         self.genre= tk.StringVar()
         self.genre.set("Fiction")
         genre_options = ["Fiction",
@@ -32,35 +32,45 @@ class AddPage(gui.Page):
                          "Tragedy",
                          "Fantasy"
                         ]
-        self.year= tk.Entry(main.ROOT)
+        self.year= tk.Entry(main.ROOT, justify="left")
         super().__init__([
             gui.Element(tk.Label(main.ROOT, text="Add Books",
                                 height=3,
                                 font=("TkDefaultFont", 10)),
                         {"row": 0, "column": 0, "columnspan": 2}),
-            gui.Element(tk.Label(main.ROOT, text="Title"),
-                        {"row": 1, "column": 0}),
+            gui.Element(tk.Label(main.ROOT, text="The following book will be added to the list of available books.\nYou cannot add books to the list of loaned books."),
+                        {"row": 1, "column": 0, "columnspan": 2}),
+            gui.Element(tk.Label(main.ROOT, text="Title",
+                                 justify="right",
+                                 anchor="e"),
+                        {"row": 2, "column": 0, "sticky": "e"}),
             gui.Element(self.title,
-                        {"row": 1, "column": 1}),
-            gui.Element(tk.Label(main.ROOT, text="Author"),
-                        {"row": 2, "column": 0}),
+                        {"row": 2, "column": 1, "sticky": "w"}),
+            gui.Element(tk.Label(main.ROOT, text="Author",
+                                 justify="right",
+                                 anchor="e"),
+                        {"row": 3, "column": 0, "sticky": "e"}),
             gui.Element(self.author,
-                        {"row": 2, "column": 1}),
-            gui.Element(tk.Label(main.ROOT, text="Genre"),
-                        {"row": 3, "column": 0}),
+                        {"row": 3, "column": 1, "sticky": "w"}),
+            gui.Element(tk.Label(main.ROOT, text="Genre",
+                                 justify="right",
+                                 anchor="e"),
+                        {"row": 4, "column": 0, "sticky": "e"}),
             gui.Element(tk.OptionMenu(main.ROOT, self.genre, *genre_options),
-                        {"row": 3, "column": 1}),
-            gui.Element(tk.Label(main.ROOT, text="Year"),
-                        {"row": 4, "column": 0}),
+                        {"row": 4, "column": 1, "sticky": "w"}),
+            gui.Element(tk.Label(main.ROOT, text="Year",
+                                 justify="right",
+                                 anchor="e"),
+                        {"row": 5, "column": 0, "sticky": "e"}),
             gui.Element(self.year,
-                        {"row": 4, "column": 1}),
+                        {"row": 5, "column": 1, "sticky": "w"}),
             gui.Element(tk.Button(main.ROOT, text="Add",
                                   width= 20,
                                   command=partial(self.addBook)),
-                        {"row": 5, "column": 0, "columnspan": 2}),
+                        {"row": 6, "column": 0, "columnspan": 2}),
             gui.Element(tk.Button(main.ROOT, text= "Back",
                                   command=partial(main.WIN.switchToPage, "main")),
-                        {"row": 6, "column": 0, "columnspan": 2})
+                        {"row": 7, "column": 0, "columnspan": 2})
                         ])
         
     def addBook(self):
