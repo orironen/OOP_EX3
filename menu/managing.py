@@ -89,11 +89,12 @@ class ChoosePage(gui.Page):
     """
     A page where you select a book.
     """
-    def __init__(self, title: str, desc: str, butt: str, loaned: bool= False, loaner: bool= False):
-        if loaned:
-            self.booklist= main.LIB.viewBooklist("loaned")
+    def __init__(self, title: str, butt: str, loaned: bool= False, loaner: bool= False):
+        self.loaned= loaned
+        if self.loaned:
+            self.booklist= main.LIB.viewBooklist("loaned", log= False)
         else:
-            self.booklist= main.LIB.viewBooklist("all")
+            self.booklist= main.LIB.viewBooklist("all", log= False)
         self.selected= tk.StringVar()
         self.selected.set("Choose Book")
         elements= [
@@ -101,24 +102,22 @@ class ChoosePage(gui.Page):
                                 height=3,
                                 font=("TkDefaultFont", 10)),
                         {"row": 0, "column": 0, "columnspan": 2}),
-            gui.Element(tk.Label(main.ROOT, text=desc),
-                        {"row": 1, "column": 0, "columnspan": 2}),
             gui.Element(tk.OptionMenu(main.ROOT, self.selected,
-                                      *[book.title for book in self.booklist]),
-                        {"row": 2, "column": 0, "columnspan": 2})
+                                    *[book.title for book in self.booklist]),
+                        {"row": 1, "column": 0, "columnspan": 2})
         ]
         if loaner:
             self.loaner= tk.Entry(main.ROOT, justify="left")
             elements.extend([gui.Element(tk.Label(main.ROOT, text="Loaner",
                                         justify="right",
                                         anchor="e"),
-                                {"row": 3, "column": 0, "sticky": "e"}),
+                                {"row": 2, "column": 0, "sticky": "e"}),
                             gui.Element(self.loaner,
-                                {"row": 3, "column": 1, "sticky": "w"})
+                                {"row": 2, "column": 1, "sticky": "w"})
                             ])
-            backrow= 4
-        else:
             backrow= 3
+        else:
+            backrow= 2
         elements.extend([
             gui.Element(tk.Button(main.ROOT, text=butt,
                                 command=partial(self.command)),
@@ -128,6 +127,16 @@ class ChoosePage(gui.Page):
                         {"row": backrow+1, "column": 0, "columnspan": 2})
                         ])
         super().__init__(elements)
+
+    def refresh(self):
+        if self.loaned:
+            self.booklist= main.LIB.viewBooklist("loaned", log= False)
+        else:
+            self.booklist= main.LIB.viewBooklist("all", log= False)
+        self.elements[1].widget.destroy()
+        self.elements[1]= gui.Element(tk.OptionMenu(main.ROOT, self.selected,
+                                                    *[book.title for book in self.booklist]),
+                                        {"row": 1, "column": 0, "columnspan": 2})
     
     def getSelectedBook(self):
         """
@@ -146,8 +155,7 @@ class RemovePage(ChoosePage):
     The page for removing books.
     """
     def __init__(self):
-        desc= """You can only remove books from the available booklist."""
-        super().__init__("Remove Books", desc, "Remove")
+        super().__init__("Remove Books", "Remove")
 
     def command(self):
         try:
@@ -163,7 +171,7 @@ class BorrowPage(ChoosePage):
     The page for borrowing books.
     """
     def __init__(self):
-        super().__init__("Borrow Books", '', "Borrow", loaner=True)
+        super().__init__("Borrow Books", "Borrow", loaner=True)
 
     def command(self):
         try:
@@ -182,7 +190,7 @@ class ReturnPage(ChoosePage):
     The page for returning books.
     """
     def __init__(self):
-        super().__init__("Return Books", '', "Return", loaned=True, loaner=True)
+        super().__init__("Return Books", "Return", loaned=True, loaner=True)
 
     def command(self):
         try:

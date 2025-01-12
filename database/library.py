@@ -335,7 +335,7 @@ class Library(_Obserable):
             self.__log__('book borrowed fail')
             raise Exception(e)
 
-    def viewBooklist(self, category: str, books: list[Book]= None):
+    def viewBooklist(self, category: str, books: list[Book]= None, log: bool= True):
         """
         Returns a list of Book objects in the library with various effects.
         """
@@ -344,16 +344,14 @@ class Library(_Obserable):
         
         if category == "all":
             bookview= strats.ViewBooklist(books)
-            self.__log__('Displayed all books successfully')
         elif category == "available":
             bookview= strats.ViewBooklist([book for book in books if book in AVAILABLE_BOOKS])
-            self.__log__('Displayed available books successfully')
         elif category == "loaned":
             bookview= strats.ViewBooklist([book for book in books if book in LOANED_BOOKS])
-            self.__log__('Displayed borrowed books successfully')
         elif category == "popular":
             bookview= strats.PopularDecorator(strats.ViewBooklist(LOANED_BOOKS))
-            self.__log__('Displayed popular books successfully')
+        if log:
+            self.__log__(f'Displayed {category} books successfully')
         return bookview.view()
     
     def sortByTitle(self, books: list[Book]):

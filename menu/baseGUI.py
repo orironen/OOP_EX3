@@ -42,12 +42,24 @@ class Table:
         """
         self.frame.grid_forget()
 
+    def destroy(self):
+        """
+        Destroy this table and all its descendants.
+        """
+        self.frame.destroy()
+
 class Page:
     """
     A class representing one of the application's pages.
     """
     def __init__(self, elements: list[Element]):
         self.elements= elements
+
+    def refresh(self):
+        """
+        Refresh page contents.
+        """
+        pass
 
     def setElements(self):
         """
@@ -81,7 +93,8 @@ class MainWindow:
         """
         Refresh the booklist.
         """
-        self.pages["view"].__init__()
+        for page in self.pages.values():
+            page.refresh()
 
     def switchToPage(self, newpagekey: str= None, newpage: Page= None):
         """

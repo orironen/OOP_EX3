@@ -23,7 +23,7 @@ class MainPage(gui.Page):
                         {"row": 0, "column": 0, "columnspan": 3}),
             gui.Element(tk.Button(ROOT, text="View Books",
                                   width=20,
-                                  command=partial(WIN.switchToPage, "view")),
+                                  command=partial(self.view)),
                         {"row": 1, "column": 0}),
             gui.Element(tk.Button(ROOT, text="Add Book",
                                   width=20,
@@ -53,6 +53,13 @@ class MainPage(gui.Page):
                         {"row": 3, "column": 0, "columnspan": 3})
         ])
     
+    def view(self):
+        """
+        Switches to the View Books page.
+        """
+        LIB.__log__("Displayed all books successfully")
+        WIN.switchToPage("view")
+
     def logout(self):
         """
         Asks whether you want to log out. If confirmed, returns to the login page.
@@ -77,7 +84,7 @@ def start_gui(library: Library):
         "log in": sign.LogInPage(),
         "register": sign.RegisterPage(),
         "main": MainPage(),
-        "view": view.ViewPage(),
+        "view": view.ViewPage(log=False),
         "search": view.SearchEntryPage(),
         "add": mang.AddPage(),
         "remove": mang.RemovePage(),

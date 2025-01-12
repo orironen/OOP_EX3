@@ -8,19 +8,19 @@ class ViewPage(gui.Page):
     """
     The page for viewing books.
     """
-    def __init__(self, view: str= "all", sort: str= "abc", booklist: list= None):
+    def __init__(self, view: str= "all", sort: str= "abc", booklist: list= None, log: bool= True):
         # select sorting option
-        booklist= main.LIB.viewBooklist(view, booklist)
+        booklist= main.LIB.viewBooklist(view, booklist, log)
         if sort == "abc":
-            booklist= main.LIB.sortByTitle(booklist)
+            self.booklist= main.LIB.sortByTitle(booklist)
         elif sort == "genre":
-            booklist= main.LIB.sortByGenre(booklist)
+            self.booklist= main.LIB.sortByGenre(booklist)
         self.view= view
         self.sort= sort
         # create table
         table= gui.Table(main.ROOT, 
                   ("Title", "Author", "Is Loaned", "Copies", "Genre", "Year"),
-                  [book.toList() for book in booklist])
+                  [book.toList() for book in self.booklist])
         main.ROOT.grid_rowconfigure(1, weight=1)
         # initialize elements
         super().__init__([
@@ -34,6 +34,18 @@ class ViewPage(gui.Page):
                                   command=partial(main.WIN.switchToPage, "main")),
                         {"row": 2, "column": 0})
         ])
+
+    def refresh(self):
+        self.booklist= main.LIB.viewBooklist(self.view, self.booklist, False)
+        if self.sort == "abc":
+            self.booklist= main.LIB.sortByTitle(self.booklist)
+        elif self.sort == "genre":
+            self.booklist= main.LIB.sortByGenre(self.booklist)
+        table= gui.Table(main.ROOT, 
+                  ("Title", "Author", "Is Loaned", "Copies", "Genre", "Year"),
+                  [book.toList() for book in self.booklist])
+        self.elements[1].widget.destroy()
+        self.elements[1] = gui.Element(table, {"row": 1, "column": 0, "sticky": "nsew"})
     
     @classmethod
     def changeView(cls, view: str, sort: str):
@@ -100,6 +112,6 @@ class SearchEntryPage(gui.Page):
         try:
             booklist= main.LIB.searchBooklist(self.query.get(), self.searchby.get())
             msgbox.showinfo(title="Search Books", message=f"Found {len(booklist)} results for {self.query.get()}.")
-            main.WIN.switchToPage(newpage= ViewPage(booklist=booklist))
+            main.WIN.switchToPage(newpage= ViewPage(booklist=booklist, log=False))
         except:
             msgbox.showerror(title="Search Books", message=f"Could not find {self.query.get()}.")
