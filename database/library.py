@@ -286,6 +286,8 @@ class Library(_Obserable):
             else:
                 loaned_book= deepcopy(book_to_borrow)
                 loaned_book.copies= 1
+                if book_to_borrow.copies == 0:
+                    loaned_book.loaned= True
                 LOANED_BOOKS.append(loaned_book)
                 self.__addBookToCSV(loaned_book, 'loaned_books.csv')
             if loaner in book_to_borrow.getWaitingList():
