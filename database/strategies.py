@@ -120,7 +120,7 @@ class PopularDecorator(BooklistDecorator):
     Sorts list based on book popularity.
     """
     def view(self):
-        return sorted(self._comp.books, key=lambda x: x.borrowed, reverse=True)
+        return sorted(self._comp.books, key=lambda x: x.borrowed, reverse=True)[:10]
 
     def search(self, query: str) -> list[Book]:
         sorted_books= sorted(self._comp.books, key=lambda x: x.borrowed, reverse=True)[:10]

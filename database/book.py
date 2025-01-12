@@ -102,6 +102,9 @@ class Book:
             self.year
         ]
     
+    def __eq__(self, other: Self) -> bool:
+        return self.title == other.title and self.author == other.author and str(self.genre) == str(other.genre) and self.year == other.year
+
 class GenreBook(Book):
     """
     Base class for genre-specific books.

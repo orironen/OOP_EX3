@@ -306,10 +306,10 @@ class Library(_Obserable):
             bookview= strats.BooklistDecorator(strats.ViewBooklist(books))
             self.__log__('Displayed all books successfully')
         elif category == "available":
-            bookview= strats.AvailableDecorator(strats.ViewBooklist(books))
+            bookview= strats.BooklistDecorator(strats.ViewBooklist([book for book in books if book in AVAILABLE_BOOKS]))
             self.__log__('Displayed available books successfully')
         elif category == "loaned":
-            bookview= strats.LoanedDecorator(strats.ViewBooklist(books))
+            bookview= strats.BooklistDecorator(strats.ViewBooklist([book for book in books if book in LOANED_BOOKS]))
             self.__log__('Displayed borrowed books successfully')
         elif category == "popular":
             bookview= strats.PopularDecorator(strats.ViewBooklist(books))

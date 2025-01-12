@@ -1,4 +1,3 @@
-from functools import partial
 import tkinter as tk
 from tkinter import ttk
 
@@ -89,8 +88,6 @@ class MainWindow:
         if newpagekey:
             self.current= self.pages[newpagekey]
         elif newpage:
-            if isinstance(newpage, partial):
-                newpage = Page(newpage.elements)
             self.current= newpage
         else:
             raise ValueError
