@@ -143,9 +143,9 @@ class Library(_Obserable):
                 # add new book to csv
                 self.__addBookToCSV(book, 'books.csv')
                 self.__addBookToCSV(book, 'available_books.csv')
-        except OSError:
+        except OSError as e:
             self.__log__('book added fail')
-            raise OSError
+            raise OSError(e)
         self.__log__('book added successfully')
         self.notify(f'The book {book.title} has been added.')
 
@@ -237,82 +237,84 @@ class Library(_Obserable):
         """
         self.__log__('logged out successfully')
         
-    def borrowBook(self, loaner: str, bookname: str):
+    def borrowBook(self, loaner: str, book_to_borrow: Book):
         """
         Borrows a book from the library in the name of the
         mentioned user.
         """
         try:
-            # find book in available
-            book_to_borrow: Book
-            try:
-                booksearch= strats.AvailableDecorator(strats.SearchByTitle())
-                book_to_borrow= deepcopy(booksearch.search(bookname)[0])
-            except IndexError:
+            # no destructive edits
+            book_to_borrow= deepcopy(book_to_borrow)
+            # if book isn't available
+            if book_to_borrow not in AVAILABLE_BOOKS:
                 # add to waiting list
-                booksearch= strats.SearchByTitle()
-                book_to_borrow= deepcopy(booksearch.execute_search(bookname)[0])
-                book_to_borrow.addToWaitingList(loaner)
-                self.notify(f"{loaner} has been added to the waiting list for '{bookname}'.")
-                raise OSError
+                if book_to_borrow in LOANED_BOOKS:
+                    book_to_borrow.addToWaitingList(loaner)
+                    self.notify(f"{loaner} has been added to the waiting list for '{book_to_borrow.title}'.")
+                    raise OSError("waitlist")
+                raise ValueError("Book doesn't exist.")
             oldbook= deepcopy(book_to_borrow)
             # update book
             book_to_borrow.copies-=1
             book_to_borrow.loaned= True
             # update available books
+            index= AVAILABLE_BOOKS.index(book_to_borrow)
+            AVAILABLE_BOOKS.remove(book_to_borrow)
+            AVAILABLE_BOOKS.insert(index, book_to_borrow)
             self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
             # find book in loaned
-            try:
-                booksearch= strats.LoanedDecorator(strats.SearchByTitle())
-                loaned_book= deepcopy(booksearch.search(bookname)[0])
+            if book_to_borrow in LOANED_BOOKS:
+                loaned_book= deepcopy([book for book in LOANED_BOOKS if book == book_to_borrow][0])
                 # update loaned books
                 oldbook= deepcopy(loaned_book)
                 loaned_book.copies+=1
+                index= LOANED_BOOKS.index(loaned_book)
+                LOANED_BOOKS.remove(loaned_book)
+                LOANED_BOOKS.insert(index, loaned_book)
                 self.updateBookDetails(oldbook, loaned_book, 'loaned_books.csv')
-            except IndexError:
-                book_to_borrow.copies= 1
-                self.__addBookToCSV(book_to_borrow, 'loaned_books.csv')
-            book_to_borrow.removeFromWaitingList(loaner)
+            else:
+                loaned_book= deepcopy(book_to_borrow)
+                loaned_book.copies= 1
+                LOANED_BOOKS.append(loaned_book)
+                self.__addBookToCSV(loaned_book, 'loaned_books.csv')
+            if loaner in book_to_borrow.getWaitingList():
+                book_to_borrow.removeFromWaitingList(loaner)
             self.notify(message=f"The book '{book_to_borrow.title}' was borrowed by {loaner}.")
-        except OSError:
+        except Exception as e:
             self.__log__('book borrowed fail')
+            raise Exception(e)
 
-    def returnBook(self, loaner: str, bookname: str):
+    def returnBook(self, loaner: str, book_to_return: Book):
         """
         Borrows a book from the library in the name of the
         mentioned user.
         """
         try:
-            book_to_return: Book
             # find book in available
-            booksearch= strats.AvailableDecorator(strats.SearchByTitle())
-            book_to_return= deepcopy(booksearch.search(bookname)[0])
             oldbook= deepcopy(book_to_return)
             # update book
             book_to_return.copies-=1
             book_to_return.loaned= False
-            # update available books
+            # update loaned books
             self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
             # find book in loaned
-            try:
-                booksearch= strats.LoanedDecorator(strats.SearchByTitle())
-                book_to_return= deepcopy(booksearch.search(bookname)[0])
-                # update loaned books
-                oldbook= deepcopy(book_to_return)
-                book_to_return.copies+=1
-                self.updateBookDetails(oldbook, book_to_return, 'available_books.csv')
-            except IndexError:
+            if book_to_return in AVAILABLE_BOOKS:
+                # update available books
+                returned_book= deepcopy([book for book in AVAILABLE_BOOKS if book == book_to_return][0])
+                oldbook= deepcopy(returned_book)
+                returned_book.copies+=1
+                self.updateBookDetails(oldbook, returned_book, 'available_books.csv')
+            else:
                 book_to_return.copies= 1
                 # notify to waiting list
                 self.notify(message= f"The book {book_to_return.title} has returned.")
                 self.__addBookToCSV(book_to_return, 'available_books.csv')
             book_to_return.borrowed-=1
-            if loaner in book_to_return.getWaitingList():
-                book_to_return.removeFromWaitingList(loaner)
             self.__log__('book returned successfully')
             self.notify(message=f"The book '{book_to_return.title}' was returned by {loaner}.")
-        except OSError:
+        except Exception as e:
             self.__log__('book borrowed fail')
+            raise Exception(e)
 
     def viewBooklist(self, category: str, books: list[Book]= None):
         """

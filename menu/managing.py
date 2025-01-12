@@ -14,7 +14,8 @@ class AddPage(gui.Page):
         self.author= tk.Entry(main.ROOT, justify="left")
         self.genre= tk.StringVar()
         self.genre.set("Fiction")
-        genre_options = ["Fiction",
+        genre_options = [
+                         "Fiction",
                          "Dystopian",
                          "Classic",
                          "Adventure",
@@ -80,39 +81,57 @@ class AddPage(gui.Page):
         try:
             main.LIB.addBook(BookFactory.create_book_from_input(self.title.get(), self.author.get(), self.genre.get(), self.year.get()))
             main.WIN.refresh()
-            msgbox.showinfo(title="Add Book", message=f"{self.title.get()} added successfully. Book may not appear to be added initially.")
-        except OSError:
-            msgbox.showerror(title="Add Book", message=f"Could not add {self.title.get()}.")
+            msgbox.showinfo(title="Add Book", message=f"{self.title.get()} added successfully.")
+        except Exception as e:
+            msgbox.showerror(title="Add Book", message=f"Could not add {self.title.get()}. {e}")
 
 class ChoosePage(gui.Page):
     """
     A page where you select a book.
     """
-    def __init__(self, title: str, desc: str, butt: str, loaned: bool= False):
-        if loaned:
-            self.booklist= main.LIB.viewBooklist("loaned")
-        else:
-            self.booklist= main.LIB.viewBooklist("available")
+    def __init__(self, title: str, desc: str, butt: str, booklist: str= "available", loaner: bool= False):
+        self.booklist= main.LIB.viewBooklist(booklist)
         self.selected= tk.StringVar()
         self.selected.set("Choose Book")
-        super().__init__([
+        elements= [
             gui.Element(tk.Label(main.ROOT, text=title,
                                 height=3,
                                 font=("TkDefaultFont", 10)),
-                        {"row": 0, "column": 0}),
+                        {"row": 0, "column": 0, "columnspan": 2}),
             gui.Element(tk.Label(main.ROOT, text=desc),
-                        {"row": 1, "column": 0}),
+                        {"row": 1, "column": 0, "columnspan": 2}),
             gui.Element(tk.OptionMenu(main.ROOT, self.selected,
                                       *[book.title for book in self.booklist]),
-                        {"row": 2, "column": 0}),
+                        {"row": 2, "column": 0, "columnspan": 2})
+        ]
+        if loaner:
+            self.loaner= tk.Entry(main.ROOT, justify="left")
+            elements.extend([gui.Element(tk.Label(main.ROOT, text="Loaner",
+                                        justify="right",
+                                        anchor="e"),
+                                {"row": 3, "column": 0, "sticky": "e"}),
+                            gui.Element(self.loaner,
+                                {"row": 3, "column": 1, "sticky": "w"})
+                            ])
+            backrow= 4
+        else:
+            backrow= 3
+        elements.extend([
             gui.Element(tk.Button(main.ROOT, text=butt,
-                                  command=partial(self.command)),
-                        {"row": 3, "column": 0}),
+                                command=partial(self.command)),
+                        {"row": backrow, "column": 0, "columnspan": 2}),
             gui.Element(tk.Button(main.ROOT, text= "Back",
-                                  command=partial(main.WIN.switchToPage, "main")),
-                        {"row": 4, "column": 0})
-        ])
+                                command=partial(main.WIN.switchToPage, "main")),
+                        {"row": backrow+1, "column": 0, "columnspan": 2})
+                        ])
+        super().__init__(elements)
     
+    def getSelectedBook(self):
+        """
+        Get the book selected from the dropdown.
+        """
+        return [book for book in self.booklist if book.title == self.selected.get()][0]
+
     def command(self):
         """
         Execute the given page's command.
@@ -129,9 +148,29 @@ class RemovePage(ChoosePage):
 
     def command(self):
         try:
-            book= [book for book in self.booklist if book.title == self.selected.get()][0]
+            book= self.getSelectedBook()
             main.LIB.removeBook(book)
             main.WIN.refresh()
-            msgbox.showinfo(title="Remove Book", message=f"{book.title} removed successfully. Book may not appear to be removed initially.")
-        except:
-            msgbox.showerror(title="Remove Book", message=f"Could not remove {book.title}.")
+            msgbox.showinfo(title="Remove Book", message=f"{book.title} removed successfully.")
+        except Exception as e:
+            msgbox.showerror(title="Remove Book", message=f"Could not remove {book.title}. {e}")
+
+class BorrowPage(ChoosePage):
+    """
+    The page for borrowing books.
+    """
+    def __init__(self):
+        super().__init__("Borrow Books", '', "Borrow", booklist= "all", loaner=True)
+
+    def command(self):
+        try:
+            book= self.getSelectedBook()
+            main.LIB.borrowBook(self.loaner, book)
+            main.WIN.refresh()
+            msgbox.showinfo(title="Borrow Book", message=f"{self.selected.get()} borrowed successfully.")
+        except Exception as e:
+            if e == "waitlist":
+                msgbox.showerror(title="Borrow Book", message=f"{self.selected.get()} is not available. Added to waitlist.")
+            else:
+                msgbox.showerror(title="Borrow Book", message=f"Could not borrow {self.selected.get()}. {e}")
+                raise e
