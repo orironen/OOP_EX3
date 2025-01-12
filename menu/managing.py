@@ -180,7 +180,7 @@ class BorrowPage(ChoosePage):
             main.WIN.refresh()
             msgbox.showinfo(title="Borrow Book", message=f"{self.selected.get()} borrowed successfully.")
         except Exception as e:
-            if e == "waitlist":
+            if str(e) == "waitlist":
                 msgbox.showerror(title="Borrow Book", message=f"{self.selected.get()} is not available. Added to waitlist.")
             else:
                 msgbox.showerror(title="Borrow Book", message=f"Could not borrow {self.selected.get()}. {e}")
