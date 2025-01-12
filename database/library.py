@@ -167,10 +167,14 @@ class Library(_Obserable):
         Removes a book from the library.
         """
         BOOKS.remove(book)
-        AVAILABLE_BOOKS.remove(book)
+        if book in AVAILABLE_BOOKS:
+            AVAILABLE_BOOKS.remove(book)
+        if book in LOANED_BOOKS:
+            LOANED_BOOKS.remove(book)
         try:
             self.__removeBookFromCSV(book, 'books.csv')
             self.__removeBookFromCSV(book, 'available_books.csv')
+            self.__removeBookFromCSV(book, 'loaned_books.csv')
             self.__log__('book removed successfully')
             self.notify(f'The book {book.title} has been removed.')
         except:

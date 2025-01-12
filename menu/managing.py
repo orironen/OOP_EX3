@@ -89,8 +89,11 @@ class ChoosePage(gui.Page):
     """
     A page where you select a book.
     """
-    def __init__(self, title: str, desc: str, butt: str, booklist: str= "available", loaner: bool= False):
-        self.booklist= main.LIB.viewBooklist(booklist)
+    def __init__(self, title: str, desc: str, butt: str, loaned: bool= False, loaner: bool= False):
+        if loaned:
+            self.booklist= main.LIB.viewBooklist("loaned")
+        else:
+            self.booklist= main.LIB.viewBooklist("all")
         self.selected= tk.StringVar()
         self.selected.set("Choose Book")
         elements= [
@@ -160,7 +163,7 @@ class BorrowPage(ChoosePage):
     The page for borrowing books.
     """
     def __init__(self):
-        super().__init__("Borrow Books", '', "Borrow", booklist= "all", loaner=True)
+        super().__init__("Borrow Books", '', "Borrow", loaner=True)
 
     def command(self):
         try:
