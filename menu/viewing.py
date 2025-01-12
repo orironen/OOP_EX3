@@ -99,7 +99,7 @@ class SearchEntryPage(gui.Page):
         """
         try:
             booklist= main.LIB.searchBooklist(self.query.get(), self.searchby.get())
-            msgbox.showinfo(title="Search Books", message=f"Found {len(booklist)} results for {self.query.get}.")
+            msgbox.showinfo(title="Search Books", message=f"Found {len(booklist)} results for {self.query.get()}.")
             main.WIN.switchToPage(newpage= ViewPage(booklist=booklist))
         except:
             msgbox.showerror(title="Search Books", message=f"Could not find {self.query.get()}.")
