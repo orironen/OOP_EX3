@@ -266,14 +266,21 @@ class Library(_Obserable):
             # update available books
             index= AVAILABLE_BOOKS.index(book_to_borrow)
             AVAILABLE_BOOKS.remove(book_to_borrow)
+            # if copies are available
             if book_to_borrow.copies > 0:
                 AVAILABLE_BOOKS.insert(index, book_to_borrow)
                 self.updateBookDetails(oldbook, book_to_borrow, 'available_books.csv')
             else:
                 self.__removeBookFromCSV(book_to_borrow, 'available_books.csv')
+                # if all is loaned
+                index= BOOKS.index(book_to_borrow)
+                oldbook= deepcopy(BOOKS[index])
+                BOOKS[index].loaned= True
+                self.updateBookDetails(oldbook, BOOKS[index], 'books.csv')
             # find book in loaned
             if book_to_borrow in LOANED_BOOKS:
                 loaned_book= deepcopy([book for book in LOANED_BOOKS if book == book_to_borrow][0])
+                # if all is loaned
                 if book_to_borrow.copies == 0:
                     loaned_book.loaned= True
                 # update loaned books
@@ -284,15 +291,18 @@ class Library(_Obserable):
                 LOANED_BOOKS.insert(index, loaned_book)
                 self.updateBookDetails(oldbook, loaned_book, 'loaned_books.csv')
             else:
+                # add book to loaned
                 loaned_book= deepcopy(book_to_borrow)
                 loaned_book.copies= 1
                 if book_to_borrow.copies == 0:
                     loaned_book.loaned= True
                 LOANED_BOOKS.append(loaned_book)
                 self.__addBookToCSV(loaned_book, 'loaned_books.csv')
+            # if in waiting list
             if loaner in book_to_borrow.getWaitingList():
                 book_to_borrow.removeFromWaitingList(loaner)
             self.notify(message=f"The book '{book_to_borrow.title}' was borrowed by {loaner}.")
+            self.__log__('book borrowed successfully')
         except Exception as e:
             self.__log__('book borrowed fail')
             raise Exception(e)
@@ -317,6 +327,11 @@ class Library(_Obserable):
                 self.updateBookDetails(oldbook, book_to_return, 'loaned_books.csv')
             else:
                 self.__removeBookFromCSV(book_to_return, 'loaned_books.csv')
+                # if all is available
+                index= BOOKS.index(book_to_return)
+                oldbook= deepcopy(BOOKS[index])
+                BOOKS[index].loaned= False
+                self.updateBookDetails(oldbook, BOOKS[index], 'books.csv')
             # find book in loaned
             if book_to_return in AVAILABLE_BOOKS:
                 # update available books
