@@ -1,7 +1,4 @@
 from enum import Enum, auto
-from typing import Self
-
-from Users.user import User
 
 class Genre(Enum):
     """
@@ -29,7 +26,7 @@ class Genre(Enum):
         return self.name.replace('_', ' ').title()
 
     @classmethod
-    def parseGenre(cls, obj: str) -> Self:
+    def parseGenre(cls, obj: str) -> 'Genre':
         """
         A method that parses a string into a Genre object.
         """
@@ -101,7 +98,7 @@ class Book:
             self.year
         ]
     
-    def __eq__(self, other: Self) -> bool:
+    def __eq__(self, other: 'Book') -> bool:
         return self.title == other.title and self.author == other.author and str(self.genre) == str(other.genre) and self.year == other.year
 
 class GenreBook(Book):
@@ -111,7 +108,7 @@ class GenreBook(Book):
     GENRE = None
     
     @classmethod
-    def parseBook(cls, l: list) -> Self:
+    def parseBook(cls, l: list) -> 'Book':
         """
         Parses a Book object out of the given list.
         """

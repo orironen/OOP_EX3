@@ -1,5 +1,4 @@
 import hashlib
-from typing import Self
 
 class User:
     """
@@ -25,5 +24,5 @@ class User:
         return self.__messages
     
     @classmethod
-    def parseUser(cls, row: list[str]) -> Self:
+    def parseUser(cls, row: list[str]) -> 'User':
         return cls(row[0], row[1], row[2])
