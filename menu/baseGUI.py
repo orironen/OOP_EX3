@@ -95,6 +95,8 @@ class MainWindow:
         """
         for page in self.pages.values():
             page.refresh()
+        self.current.hideElements()
+        self.current.setElements()
 
     def switchToPage(self, newpagekey: str= None, newpage: Page= None):
         """
