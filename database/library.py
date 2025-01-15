@@ -299,7 +299,7 @@ class Library(_Obserable):
                 LOANED_BOOKS.append(loaned_book)
                 self.__addBookToCSV(loaned_book, 'loaned_books.csv')
             # if in waiting list
-            if loaner in book_to_borrow.getWaitingList():
+            if loaner.lower() in [name.lower() for name in book_to_borrow.getWaitingList()]:
                 book_to_borrow.removeFromWaitingList(loaner)
             self.notify(message=f"The book '{book_to_borrow.title}' was borrowed by {loaner}.")
             self.__log__('book borrowed successfully')
